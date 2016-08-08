@@ -3,6 +3,11 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.6
+----------------------------
+
+* Not Filed: Use asctime instead of created in fabric.log
+
 mikasafabric for MySQL 0.0.5
 ----------------------------
 

@@ -271,7 +271,7 @@ def _configure_logging(config, daemonize):
     mysql_handler = _logging.MySQLHandler()
 
     formatter = logging.Formatter(
-        "[%(levelname)s] %(created)f - %(threadName)s "
+        "[%(levelname)s] %(asctime)s - %(threadName)s "
         "- %(message)s")
     handler.setFormatter(formatter)
 
