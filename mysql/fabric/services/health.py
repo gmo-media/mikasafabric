@@ -60,9 +60,9 @@ class CheckHealth(Command):
             names=[
                 'uuid', 'is_alive', 'status',
                 'is_not_running', 'is_not_configured', 'io_not_running',
-                'sql_not_running', 'io_error', 'sql_error'
+                'sql_not_running', 'io_error', 'sql_error', 'gtid_executed'
             ],
-            types=[str, bool, str] + [bool] * 4 + [str, str]
+            types=[str, bool, str] + [bool] * 4 + [str, str, str]
         )
         issues = ResultSet(names=['issue'], types=[str])
 
@@ -82,21 +82,29 @@ class CheckHealth(Command):
             }
             try:
                 # TODO: CHECK WHETHER WE SHOULD USE IS_ALIVE OR NOT.
-                server.connect()
-                alive = True
-                if not is_master:
-                    slave_issues, why_slave_issues = \
-                        _replication.check_slave_issues(server)
-                    str_master_uuid = _replication.slave_has_master(server)
-                    if (group.master is None or str(group.master) != \
-                        str_master_uuid) and not slave_issues:
-                        issues.append_row([
-                            "Group has master (%s) but server is connected " \
-                            "to master (%s)." % \
-                            (group.master, str_master_uuid)
-                        ])
+                if server.is_alive:
+                  server.connect()
+                  alive = True
+                  if not is_master:
+                      slave_issues, why_slave_issues = \
+                          _replication.check_slave_issues(server)
+                      str_master_uuid = _replication.slave_has_master(server)
+                      if (group.master is None or str(group.master) != \
+                          str_master_uuid) and not slave_issues:
+                          issues.append_row([
+                              "Group has master (%s) but server is connected " \
+                              "to master (%s)." % \
+                              (group.master, str_master_uuid)
+                          ])
+                  gtid_executed= server.get_gtid_status()[0].GTID_EXECUTED
+                else:
+                  status = _server.MySQLServer.FAULTY
+                  gtid_executed= "UNKNOWN"
+                  
             except _errors.DatabaseError:
                 status = _server.MySQLServer.FAULTY
+                gtid_executed= "UNKNOWN"
+
             info.append_row([
                 server.uuid,
                 alive,
@@ -107,6 +115,7 @@ class CheckHealth(Command):
                 why_slave_issues['sql_not_running'],
                 why_slave_issues['io_error'],
                 why_slave_issues['sql_error'],
+                gtid_executed,
             ])
 
         return CommandResult(None, results=[info, issues])

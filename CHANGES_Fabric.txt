@@ -3,6 +3,11 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.5
+----------------------------
+
+* Not Filed: Display gtid_executed in group.health()
+
 mikasafabric for MySQL 0.0.4
 ----------------------------
 
