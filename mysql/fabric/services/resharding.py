@@ -502,6 +502,7 @@ def _setup_replication(shard_id, source_group_id, destn_group_id, split_value,
     slave.connect()
 
     #Stop and reset any slave that  might be running on the slave server.
+    _utils.set_offline_mode(slave, True) ### TODO: if forced offline_mode
     _replication.stop_slave(slave, wait=True)
     _replication.reset_slave(slave, clean=True)
 
@@ -510,6 +511,7 @@ def _setup_replication(shard_id, source_group_id, destn_group_id, split_value,
 
     #Start the slave so that syncing of the data begins
     _replication.start_slave(slave, wait=True)
+    _utils.set_offline_mode(slave, False) ### TODO: if forced offline_mode
 
     #Setup sync between the source and the destination groups.
     _events.trigger_within_procedure(

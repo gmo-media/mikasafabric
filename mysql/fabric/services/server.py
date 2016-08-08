@@ -783,6 +783,9 @@ def _set_server_status_spare(server, update_only):
     mode = _server.MySQLServer.OFFLINE
     previous_status = server.status
     _do_set_status(server, allowed_status, status, mode, update_only)
+    server.connect()
+    server.offline_mode= False
+    server.disconnect()
 
     if previous_status == _server.MySQLServer.FAULTY:
         # Check whether the server is really alive or not.
@@ -1085,9 +1088,9 @@ def _check_requirements(server):
     # Being able to connect to the server is the first requirment.
     server.connect()
 
-    if not server.check_version_compat((5, 6, 8)):
+    if not server.check_version_compat((5, 7, 5)):
         raise _errors.ServerError(
-            "Server (%s) has an outdated version (%s). 5.6.8 or greater "
+            "Server (%s) has a non-support version (%s). 5.7.5 or greater "
             "is required." % (server.uuid, server.version)
         )
 

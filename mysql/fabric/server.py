@@ -960,6 +960,7 @@ class MySQLServer(_persistence.Persistable):
         self.__status = status
         self.__weight = weight
         self.__read_only = None
+        self.__offline_mode = None
         self.__server_id = None
         self.__version = None
         self.__gtid_enabled = None
@@ -1035,12 +1036,13 @@ class MySQLServer(_persistence.Persistable):
         self.__binlog_enabled = not ret_binlog in ("OFF", "0")
 
         self._check_read_only()
+        self._check_offline_mode()
 
         _LOGGER.debug("Connected to server with uuid (%s), server_id (%d), "
-                      "version (%s), gtid (%s), binlog (%s), read_only (%s).",
+                      "version (%s), gtid (%s), binlog (%s), read_only (%s), offline_mode (%s).",
                       self.uuid, self.__server_id, self.__version,
                       self.__gtid_enabled, self.__binlog_enabled,
-                      self.__read_only)
+                      self.__read_only, self.__offline_mode)
 
     def disconnect(self):
         """Disconnect from the server.
@@ -1048,15 +1050,17 @@ class MySQLServer(_persistence.Persistable):
         if self.__cnx is not None:
             _LOGGER.debug("Disconnecting from server with uuid (%s), "
                           "server_id (%s), version (%s), gtid (%s), "
-                          "binlog (%s), read_only (%s).", self.uuid,
+                          "binlog (%s), read_only (%s), offline_mode (%s).",
+                          self.uuid,
                           self.__server_id, self.__version,
                           self.__gtid_enabled, self.__binlog_enabled,
-                          self.__read_only)
+                          self.__read_only, self.__offline_mode)
             _LOGGER.debug("Server (%s) Releasing connection (%s).",
                           id(self), self.__cnx)
             self.__cnx_manager.release_connection(self, self.__cnx)
             self.__cnx = None
             self.__read_only = None
+            self.__offline_mode = None
             self.__server_id = None
             self.__version = None
             self.__gtid_enabled = None
@@ -1158,7 +1162,16 @@ class MySQLServer(_persistence.Persistable):
                 user=server.user, passwd=server.passwd,
                 connection_timeout=connection_timeout
             )
-            res = True
+
+            cursor = cnx.cursor()
+            cursor.execute("SELECT @@offline_mode")
+            row = cursor.fetchone()
+
+            if row[0] == 1:
+                res = False
+            else:
+                res = True
+
             destroy_mysql_connection(cnx)
         except _errors.DatabaseError:
             pass
@@ -1170,6 +1183,12 @@ class MySQLServer(_persistence.Persistable):
         """
         ret_read_only = self.get_variable("READ_ONLY")
         self.__read_only = not ret_read_only in ("OFF", "0")
+
+    def _check_offline_mode(self):
+        """Check if the database was set to offline_mode.
+        """
+        ret_offline_mode = self.get_variable("OFFLINE_MODE")
+        self.__offline_mode = not ret_offline_mode in ("OFF", "0")
 
     @property
     def uuid(self):
@@ -1192,6 +1211,15 @@ class MySQLServer(_persistence.Persistable):
         """
         return self.__read_only
 
+    @property
+    def offline_mode(self):
+        """Check offline_mode on/off.
+
+        :return True If offline_mode is set
+                False If offline_mode is not set.
+        """
+        return self.__offline_mode
+
     @read_only.setter
     def read_only(self, enabled):
         """Turn read only mode on/off. Persist the information in the state
@@ -1201,6 +1229,16 @@ class MySQLServer(_persistence.Persistable):
         """
         self.set_variable("READ_ONLY", "ON" if enabled else "OFF")
         self._check_read_only()
+
+    @offline_mode.setter
+    def offline_mode(self, enabled):
+        """Turn offline_mode on/off. Persist the information in the state
+        store.
+
+        :param enabled The offline_mode flag value.
+        """
+        self.set_variable("OFFLINE_MODE", "ON" if enabled else "OFF")
+        self._check_offline_mode()
 
     @property
     def server_id(self):

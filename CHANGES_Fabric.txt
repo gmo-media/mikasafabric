@@ -3,6 +3,13 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.7
+----------------------------
+
+* Not Filed: Support offline_mode
+  * Change required mysqld version to 5.7.5 and higher(offline_mode support)
+  * mysqld will be decided as FAULTY when mysqld is set "offline_mode = ON"
+
 mikasafabric for MySQL 0.0.6
 ----------------------------
 

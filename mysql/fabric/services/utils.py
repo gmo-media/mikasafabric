@@ -48,6 +48,14 @@ def set_read_only(server, read_only):
     server.read_only = read_only
 
 
+def set_offline_mode(server, offline_mode):
+    """Set server to offline_mode.
+
+    :param offline_mode: Either offline_mode or not.
+    """
+    server.offline_mode = offline_mode
+
+
 def reset_slave(slave):
     """Stop slave and reset it.
 

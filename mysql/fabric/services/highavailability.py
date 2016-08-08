@@ -456,6 +456,7 @@ def _do_block_write_master(group_id, master_uuid, update_only=False):
     if not update_only:
         master.connect()
         _utils.set_read_only(master, True)
+        _utils.set_offline_mode(master, True)
 
     # Temporarily unset the master in this group.
     group = _server.Group.fetch(group_id)
@@ -527,6 +528,7 @@ def _change_to_candidate(group_id, master_uuid, update_only=False):
         master.connect()
         _utils.reset_slave(master)
         _utils.set_read_only(master, False)
+        _utils.set_offline_mode(master, False)
 
     group = _server.Group.fetch(group_id)
     _set_group_master_replication(group, master.uuid, update_only)
@@ -630,11 +632,13 @@ def _block_write_demote(group_id, update_only):
         master.mode = _server.MySQLServer.READ_ONLY
         master.status = _server.MySQLServer.SECONDARY
         _utils.set_read_only(master, True)
+        _utils.set_offline_mode(master, True)
 
         if not update_only:
             _events.trigger_within_procedure(
                 WAIT_SLAVES_DEMOTE, group_id, str(master.uuid)
             )
+        _utils.set_offline_mode(master, False)
 
     _set_group_master_replication(group, None, update_only)
 
