@@ -56,7 +56,8 @@ class ErrorLog(_persistence.Persistable):
         "reporter VARCHAR(64) NOT NULL, "
         "error TEXT, "
         "INDEX key_server_uuid_reported (server_uuid, reported), "
-        "INDEX key_reporter (reporter)) DEFAULT CHARSET=utf8"
+        "INDEX key_reporter (reporter), "
+        "INDEX key_reported (reported)) DEFAULT CHARSET=utf8"
     )
 
     #SQL Statement for creating event used to prune error logs that are
@@ -65,7 +66,7 @@ class ErrorLog(_persistence.Persistable):
         "CREATE EVENT prune_error_log "
         "ON SCHEDULE EVERY %s SECOND "
         "DO DELETE FROM error_log WHERE "
-        "TIMEDIFF(UTC_TIMESTAMP(), reported) > MAKETIME(%s,0,0)"
+        "reported < DATE_SUB(UTC_TIMESTAMP(), INTERVAL %s SECOND)"
     )
 
     ADD_FOREIGN_KEY_CONSTRAINT_SERVER_UUID = (

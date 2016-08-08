@@ -2,6 +2,16 @@
 ChangeLog for Fabric
 ####################
 
+
+mikasafabric for MySQL 0.0.2
+----------------------------
+
+* Bug#81557: MySQL Fabric uses wrong argument of MAKETIME in prune_log Event
+  http://bugs.mysql.com/bug.php?id=81557
+* Bug#81558: prune_log event doesn't use any index
+  http://bugs.mysql.com/bug.php?id=81558
+
+
 mikasafabric for MySQL 0.0.1
 ----------------------------
 
