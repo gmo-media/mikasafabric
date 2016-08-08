@@ -171,7 +171,7 @@ def destroy_mysql_connection(cnx):
     """
     try:
         if cnx:
-            cnx.shutdown()
+            cnx.disconnect()
     except Exception as error:
         raise _errors.DatabaseError(
             "Error trying to disconnect abruptly from (%s). %s." %

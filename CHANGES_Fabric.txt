@@ -2,6 +2,12 @@
 ChangeLog for Fabric
 ####################
 
+
+mikasafabric for MySQL 0.0.4
+----------------------------
+
+* Not Filed: Use cnx.disconnect instead of cnx.shutdown
+
 mikasafabric for MySQL 0.0.3
 ----------------------------
 
