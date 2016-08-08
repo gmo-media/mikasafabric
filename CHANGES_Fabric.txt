@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.0.3
+----------------------------
+
+* NotFiled: Avoid bogus logging into table (Just avoid, incomplete)
 
 mikasafabric for MySQL 0.0.2
 ----------------------------
@@ -10,7 +14,6 @@ mikasafabric for MySQL 0.0.2
   http://bugs.mysql.com/bug.php?id=81557
 * Bug#81558: prune_log event doesn't use any index
   http://bugs.mysql.com/bug.php?id=81558
-
 
 mikasafabric for MySQL 0.0.1
 ----------------------------
