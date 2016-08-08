@@ -1,0 +1,342 @@
+#!/bin/sh
+#
+# Copyright (c) 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# MySQL Fabric Agent
+#
+# Description:
+# Manages a MySQL Fabric instance as Linux-HA resource
+#
+# OCF instance parameters:
+#   OCF_RESKEY_binary
+#   OCF_RESKEY_config
+#   OCF_RESKEY_log
+#   OCF_RESKEY_pid
+#   OCF_RESKEY_additional_parameters
+
+# Initialization:
+
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+# Fill in some defaults if no values are specified
+OCF_RESKEY_binary_default="mysqlfabric"
+OCF_RESKEY_additional_parameters_default=""
+OCF_RESKEY_config_default="/etc/mysql/fabric.cfg"
+OCF_RESKEY_log_default="/var/log/fabric-server.log"
+OCF_RESKEY_pid_default="/var/run/fabric-server.pid"
+
+: ${OCF_RESKEY_binary=${OCF_RESKEY_binary_default}}
+: ${OCF_RESKEY_config=${OCF_RESKEY_config_default}}
+: ${OCF_RESKEY_log=${OCF_RESKEY_log_default}}
+: ${OCF_RESKEY_pid=${OCF_RESKEY_pid_default}}
+: ${OCF_RESKEY_additional_parameters=${OCF_RESKEY_additional_parameters_default}}
+
+# Functions:
+fabric_usage() {
+  cat <<UEND
+usage: $0 (start|stop|validate-all|meta-data|monitor)
+
+$0 manages a MySQL Fabric Instance as an HA resource.
+
+The 'start' operation starts MySQL Fabric.
+The 'stop' operation stops MySQL Fabric.
+The 'monitor' operation reports whether MySQL Fabric is running.
+The 'validate-all' operation reports whether the parameters are valid.
+The 'meta-data' operation reports metadata.
+UEND
+}
+
+fabric_meta_data() {
+  cat <<UEND
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="mysql-fabric">
+<version>1.0</version>
+<longdesc lang="en">
+Resource script for MySQL Fabric Instance.
+</longdesc>
+<shortdesc lang="en">Manages a MySQL Fabric Instance
+</shortdesc>
+
+<parameters>
+<parameter name="binary" unique="0" required="0">
+<longdesc lang="en">
+Location of the MySQL Fabric binary.
+</longdesc>
+<shortdesc lang="en">MySQL Fabric binary</shortdesc>
+<content type="string" default="${OCF_RESKEY_binary_default}" />
+</parameter>
+
+<parameter name="pid" unique="0" required="0">
+<longdesc lang="en">
+PID file where the PID of the MySQL Fabric process will be stored when
+MySQL Fabric is running.
+</longdesc>
+<shortdesc lang="en">Path name to PID file</shortdesc>
+<content type="string" default="${OCF_RESKEY_pid_default}" />
+</parameter>
+
+<parameter name="config" unique="0" required="0">
+<longdesc lang="en">MySQL Fabric configuration file.</longdesc>
+<shortdesc lang="en">Path to MySQL Fabric configuration file</shortdesc>
+<content type="string" default="${OCF_RESKEY_config_default}" />
+</parameter>
+
+<parameter name="additional_parameters" unique="0" required="0">
+<longdesc lang="en">
+Additional parameters which are passed to the mysqlfabric on startup.
+(e.g. --param section.name=value)
+</longdesc>
+<shortdesc lang="en">
+Additional parameters to pass to mysqlfabric
+</shortdesc>
+<content type="string" default="${OCF_RESKEY_additional_parameters_default}"/>
+</parameter>
+</parameters>
+
+<actions>
+<action name="start" timeout="120" />
+<action name="stop" timeout="120" />
+<action name="monitor" depth="0" timeout="30" interval="20" />
+<action name="validate-all" timeout="5" />
+<action name="meta-data" timeout="5" />
+</actions>
+</resource-agent>
+UEND
+}
+
+fabric_start() {
+    local logdir rundir
+
+    # If resource is already running, bail out early
+    if fabric_monitor; then
+        ocf_log info "MySQL Fabric already running"
+        return $OCF_SUCCESS
+    fi
+
+    # Check that the configuration file has the appropriate permissions.
+    have_exclusive_readable ${OCF_RESKEY_config} || return $OCF_ERR_PERM
+
+    # Check that the log file directory exists, and is writable,
+    # before trying to start MySQL Fabric.
+    logdir=`dirname ${OCF_RESKEY_log}`
+    if [ ! -d ${logdir:-.} -o ! -w ${logdir:-.} ]; then
+        ocf_log err "Directory ${logdir:-.} not writable"
+        return $OCF_ERR_PERM
+    fi
+
+    # Check that the run directory (where the PID file shall be
+    # stored) exists and is writable.
+    rundir=`dirname ${OCF_RESKEY_pid}`
+    if [ ! -d ${rundir:-.} -o ! -w ${rundir:-.} ]; then
+        ocf_log err "Directory ${rundir:-.} not writable"
+        return $OCF_ERR_PERM
+    fi
+
+    # Start Fabric and write the log to the log file.
+    for blank in `seq 1 10`; do echo >> ${OCF_RESKEY_log}; done
+    ${OCF_RESKEY_binary} --config ${OCF_RESKEY_config} \
+        manage start >> ${OCF_RESKEY_log} 2>&1 &
+
+    # Starting the server succeeded, so write the PID to the PID file.
+    echo $! > ${OCF_RESKEY_pid}
+
+    # Check whether it started up correctly. If the resource does not
+    # start up within the defined timeout, the cluster manager will
+    # consider the start action failed and kill the action.
+    while ! fabric_monitor; do
+        ocf_log debug "MySQL Fabric not started yet"
+        sleep 2
+    done
+
+    ocf_log info "MySQL Fabric started"
+    return $OCF_SUCCESS
+}
+
+fabric_stop() {
+    local shutdown_timeout count pid
+
+    # If resource is already stopped, bail out early.
+    if ! fabric_monitor_process; then
+        ocf_log info "MySQL Fabric already stopped"
+        return $OCF_SUCCESS
+    fi
+
+    ocf_run -q ${OCF_RESKEY_binary} --config ${OCF_RESKEY_config} \
+        manage stop &
+
+    shutdown_timeout=15
+    if [ -n "$OCF_RESKEY_CRM_meta_timeout" ]; then
+        shutdown_timeout=$((($OCF_RESKEY_CRM_meta_timeout/3000)-5))
+    fi
+    ocf_log info "Shutdown timeout is $shutdown_timeout"
+
+    count=0
+    while [ $count -lt $shutdown_timeout ]; do
+        ocf_log debug "Checking whether it stopped or not: $count"
+        if ! fabric_monitor_process; then
+            break
+        fi
+        count=`expr $count + 1`
+        sleep 1
+    done
+
+    if  fabric_monitor_process; then
+        ocf_log info "MySQL Fabric did not stop gracefully"
+        pid=`cat ${OCF_RESKEY_pid}`
+        kill $pid > /dev/null 2>&1
+    fi
+
+    # Remove PID file since MySQL Fabric have been stopped.
+    rm ${OCF_RESKEY_pid} > /dev/null 2>&1
+
+    ocf_log info "MySQL Fabric stopped"
+    return $OCF_SUCCESS
+}
+
+# Check whether the MySQL Fabric process exists by using 'kill -0'
+fabric_monitor_process() {
+    local pid proc count attempts
+
+    # Check whether the file with the process PID exists.
+    if [ ! -e ${OCF_RESKEY_pid} ]; then
+        return $OCF_NOT_RUNNING
+    fi
+
+    # Read the PID from the file and check if the process exists.
+    pid=`cat ${OCF_RESKEY_pid} 2>/dev/null`
+    kill -0 $pid > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        return $OCF_NOT_RUNNING
+    fi
+
+    # Check if the process is really a MySQL Fabric process.
+    # The test is done a few times to catch the case that a
+    # new process has been created after a fork but MySQL
+    # Fabric has not been executed yet. In the future, MySQL
+    # Fabric itself should be responsible for generating its
+    # own pid-file.
+    count=0
+    attempts=5
+    while [ $count -lt $attempts ]; do
+        proc=`ps axf | grep $pid | grep ${OCF_RESKEY_binary}`
+        if [ ! -z "$proc" ]; then
+            return $OCF_SUCCESS
+        fi
+        count=`expr $count + 1`
+        sleep 1
+    done
+
+    ocf_log err "MySQL Fabric with PID($pid) does not exist."
+    rm ${OCF_RESKEY_pid} > /dev/null 2>&1
+    return $OCF_NOT_RUNNING
+}
+
+fabric_monitor() {
+    # Check if the process exists and exit early if it doesn't.
+    if ! fabric_monitor_process; then
+        ocf_log debug \
+            "MySQL Fabric is not running (or is running under the wrong user)"
+        return $OCF_NOT_RUNNING
+    fi
+
+    # Now we can ping the server and see if it reacts.
+    ocf_run -q ${OCF_RESKEY_binary} --config ${OCF_RESKEY_config} \
+        manage ping
+    if [ $? -ne 0 ]; then
+        ocf_log debug "MySQL Fabric was supposed to be running"
+        return $OCF_ERR_GENERIC
+    fi
+
+    ocf_log debug "MySQL Fabric is running"
+    return $OCF_SUCCESS
+}
+
+# have_readable FILE
+#
+# Check if the provided file have read permissions for the user.
+have_readable () {
+    local file=$1
+
+    if [ ! -f $file ]; then
+        ocf_log err "File $file doesn't exist"
+        return $OCF_ERR_PERM;
+    elif [ ! -r $file ]; then
+        ocf_log err "File $file is not readable"
+        return $OCF_ERR_PERM;
+    fi
+    return $OCF_SUCCESS
+}
+
+# have_exclusive_readable FILE
+#
+# Check if the provided file have read permissions exclusively for the
+# user, that is, that it is readable by the process and that it has no
+# permissions for group or other.
+have_exclusive_readable () {
+    local file=$1
+
+    have_readable $file || return $?
+    perm=`stat -c %a $file | sed 's/.\(..\)/\1/'`
+    if [ $perm -ne 0 ]; then
+        ocf_log err "File $file is readable by others than owner: $perm"
+        return $OCF_ERR_PERM;
+    fi
+    return $OCF_SUCCESS
+}
+
+fabric_validate_all() {
+    have_binary ${OCF_RESKEY_binary} || return $OCF_ERR_INSTALLED
+    return $OCF_SUCCESS
+}
+
+case "$1" in
+  meta-data)
+        fabric_meta_data
+        exit $OCF_SUCCESS
+        ;;
+  usage|help)
+        fabric_usage
+        exit $OCF_SUCCESS
+        ;;
+esac
+
+# Will exit directly if validation fails
+fabric_validate_all || exit $?
+
+case "$1" in
+    start)
+        fabric_start
+        ;;
+    stop)
+        fabric_stop
+        ;;
+    status)
+        fabric_monitor
+        ;;
+    monitor)
+        fabric_monitor
+        ;;
+    validate-all)
+        fabric_validate_all
+        ;;
+    *)
+        fabric_usage
+        exit $OCF_ERR_UNIMPLEMENTED
+        ;;
+esac
+
+exit $?

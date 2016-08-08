@@ -1,0 +1,13 @@
+Pacemaker, Corosync and the Distributed Replicated Block Device can be used
+to create a highly available solution where two MySQL Fabric instances working
+in active and stand-by mode are configured.
+
+The "examples/ocf/mysql-fabric" script is used by the Pacemaker component to
+manage the MySQL Fabric instances and should be deployed as follows:
+
+    cp examples/ocf/mysql-fabric /usr/lib/ocf/resource.d/heartbeat/.
+    chmod 755 /usr/lib/ocf/resource.d/heartbeat/mysql-fabric
+
+Scripts to coordinate the other components are already available when Pacemaker
+is installed. Details on how the different components are orchestrated can be
+found elsewhere.
