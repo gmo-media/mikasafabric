@@ -3,6 +3,12 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.8
+----------------------------
+
+* Not Filed: Support Multi-Source Replication server
+  * mikasafabric for MySQL controls only "nameless" channel
+
 mikasafabric for MySQL 0.0.7
 ----------------------------
 

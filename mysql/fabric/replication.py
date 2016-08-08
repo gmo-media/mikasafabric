@@ -32,9 +32,9 @@ _RPL_USER_QUERY = (
     "WHERE repl_slave_priv = 'Y'"
 )
 
-_MASTER_POS_WAIT = "SELECT MASTER_POS_WAIT(%s, %s, %s)"
+_MASTER_POS_WAIT = "SELECT MASTER_POS_WAIT(%s, %s, %s, '')"
 
-_GTID_WAIT = "SELECT WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS(%s, %s)"
+_GTID_WAIT = "SELECT WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS(%s, %s, '')"
 
 IO_THREAD = "IO_THREAD"
 
@@ -136,7 +136,7 @@ def get_slave_status(server):
 
     :param server: MySQL Server.
     """
-    return server.exec_stmt("SHOW SLAVE STATUS", {"columns" : True})
+    return server.exec_stmt("SHOW SLAVE STATUS FOR CHANNEL ''", {"columns" : True})
 
 @_server.server_logging
 def is_slave_thread_running(server, threads=None):
@@ -251,7 +251,8 @@ def start_slave(server, threads=None, wait=False, timeout=None):
     are started.
     """
     threads = threads or ()
-    server.exec_stmt("START SLAVE " + ", ".join(threads))
+    server.exec_stmt("START SLAVE " + ", ".join(threads) + " FOR CHANNEL ''")
+    server.offline_mode= False
     if wait:
         wait_for_slave_thread(server, timeout=timeout, wait_for_running=True,
                               threads=threads)
@@ -274,7 +275,7 @@ def stop_slave(server, threads=None, wait=False, timeout=None):
     are stopped.
     """
     threads = threads or ()
-    server.exec_stmt("STOP SLAVE " + ", ".join(threads))
+    server.exec_stmt("STOP SLAVE " + ", ".join(threads) + " FOR CHANNEL ''")
     if wait:
         wait_for_slave_thread(server, timeout=timeout, wait_for_running=False,
                               threads=threads)
@@ -288,7 +289,7 @@ def reset_slave(server, clean=False):
     :param clean: Do not save master information such as host, user, etc.
     """
     param = "ALL" if clean else ""
-    server.exec_stmt("RESET SLAVE %s" % (param, ))
+    server.exec_stmt("RESET SLAVE %s FOR CHANNEL ''" % (param, ))
 
 @_server.server_logging
 def wait_for_slave_thread(server, timeout=None, wait_for_running=True,
@@ -483,7 +484,7 @@ def switch_master(slave, master, master_user, master_passwd=None,
             commands.append("MASTER_LOG_POS = %s" % master_log_pos)
             params.append(master_log_pos)
 
-    slave.exec_stmt("CHANGE MASTER TO " + ", ".join(commands),
+    slave.exec_stmt("CHANGE MASTER TO " + ", ".join(commands) + " FOR CHANNEL ''",
                     {"params": tuple(params)})
 
 @_server.server_logging
