@@ -3,6 +3,11 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.9
+----------------------------
+
+* Not Filed: ORDER BY server_address in group.lookup_servers()
+
 mikasafabric for MySQL 0.0.8
 ----------------------------
 

@@ -826,7 +826,7 @@ class MySQLServer(_persistence.Persistable):
     #SQL Statement to retrieve a set of servers in a group from the state store.
     QUERY_SERVER_BY_GROUP_ID = (
         "SELECT server_uuid, server_address, mode, status, weight, group_id "
-        "FROM servers WHERE group_id = %s"
+        "FROM servers WHERE group_id = %s ORDER BY server_address"
         )
 
     #SQL Statement to retrieve a server from the state store.
