@@ -1,12 +1,14 @@
-MySQL Utilities 1.5
+mikasafabric for MySQL
 
-This is a release of MySQL Utilities, the dual-license, complete 
-database modeling, administration and development program for MySQL. 
+This is a clone of MySQL Utilities 1.5.6.
+
 For the avoidance of doubt, this particular copy of the software is 
 released under the version 2 of the GNU General Public License. 
-MySQL Utilities is brought to you by the MySQL team at Oracle.
+mikasafabric for MySQL is brought to you by the MySQL team at Oracle (original
+MySQL Fabric) and GMO Media, Inc(Patched).
 
 Copyright (c) 2010, 2015 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2016 GMO Media, Inc. All rights reserved.
 
 For more information on MySQL Utilities, visit
   http://www.mysql.com/products/enterprise/utilities.html

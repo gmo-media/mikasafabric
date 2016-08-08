@@ -1,3 +1,13 @@
+mikasafabric for MySQL is "patched MySQL Fabric" by GMO Media, Inc.
+
+Copyright (c) 2016, GMO Media, Inc. All rights reserved in patched lines.
+Copyright (c) 2014, 2015, Oracle and/or its affiliates. All rights reserved in
+original MySQL Fabric code.
+
+Both codes are licensed under GPLv2.
+
+==== Original README_Fabric.txt ====
+
 MySQL Fabric 1.5
 
 This is a release of MySQL Fabric , the dual-license, system for managing a

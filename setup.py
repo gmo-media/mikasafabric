@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2010, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, GMO Media, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #
-"""Setup script for MySQL Utilities"""
+"""Setup script for mikasafabric for MySQL"""
 from __future__ import absolute_import
 
 import ConfigParser
@@ -114,7 +115,7 @@ PATH=`prepend_path %s`
 
 
 class install(_install):
-    """Install MySQL Utilities"""
+    """Install mikasafabric for MySQL"""
     user_options = _install.user_options + [
         ("skip-profile", None, "Skip installing a profile script"),
         ]
@@ -200,7 +201,7 @@ class install_man(distutils.core.Command):
 
 
 class install_scripts(_install):
-    """Install MySQL Utilities scripts"""
+    """Install mikasafabric for MySQL"""
     description = "Install the Shell Profile (Linux/Unix)"
 
     user_options = _install.user_options + [

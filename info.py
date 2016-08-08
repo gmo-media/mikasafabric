@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, GMO Media, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +20,6 @@ import distutils.command.build_scripts
 import distutils.util
 import glob
 import os
-
-import mysql.utilities
 
 
 def find_packages(*args, **kwrds):
@@ -135,44 +134,39 @@ def add_optional_resources(*args, **kwrds):
 
 
 META_INFO = {
-    'name': 'mysql-utilities',
-    'description': 'MySQL Utilities',
-    'maintainer': 'Oracle',
-    'maintainer_email': '',
-    'version': mysql.utilities.VERSION_STRING,
-    'url': 'http://dev.mysql.com',
+    'name': 'mikasafabric',
+    'description': 'mikasafabric for MySQL',
+    'maintainer': 'GMO Media, Inc.',
+    'maintainer_email': 'yoku0825@gmail.com',
+    'version': '0.1.0',
+    'url': 'https://github.com/gmo-media/mikasafabric',
     'license': 'GNU GPLv2 (with FOSS License Exception)',
     'keywords': "mysql db",
     'classifiers': [
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Environment :: Console',
-        'Environment :: Win32 (MS Windows)',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Database Administrators',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: OS Independent',
-        'Operating System :: POSIX',
+        'Development Status :: 4 - Beta',
+        'Topic :: Database',
         'Topic :: Utilities',
         ],
     }
 
 INSTALL = {
     'packages': [
-        'mysql',
-        'mysql.utilities',
-        'mysql.utilities.command',
-        'mysql.utilities.common',
+        'mysql.fabric',
         ],
     'scripts': glob.glob('scripts/*.py'),
     'requires': [
         'distutils',
         ],
     'provides': [
-        'mysql.utilities',
+        'mysql.fabric',
         ],
     }
 # This adds any optional resource
