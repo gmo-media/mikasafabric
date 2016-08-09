@@ -1100,7 +1100,7 @@ class MySQLServer(_persistence.Persistable):
                 ]
                 level = res.group("level").replace('`', "")
                 if (all_privileges in privileges and all_level == level) or \
-                    (required_privileges.issubset(set(privileges)) and \
+                    ((all_privileges in privileges or required_privileges.issubset(set(privileges))) and \
                     required_level == level):
                     _LOGGER.debug("match")
                     return True

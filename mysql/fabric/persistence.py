@@ -50,6 +50,7 @@ import logging
 import threading
 import time
 import uuid as _uuid
+import re
 
 import mysql.fabric.errors as _errors
 
@@ -451,6 +452,17 @@ class MySQLPersister(object):
                 autocommit=True, database=self.database,
                 **self.connection_info
             )
+
+            if not self.has_privileges(required_privileges(), ".".join([self.database, "*"])):
+                _LOGGER.critical(
+                    "Current user doesn't have privileges for backing store enough."
+                )
+                raise Exception("User: %s doesn't have enough (%s) privileges on %s.*" % \
+                                (self.connection_info["user"],
+                                 ", ".join(required_privileges()),
+                                 self.database))
+
+
         except _errors.DatabaseError:
             pass
 
@@ -557,6 +569,48 @@ class MySQLPersister(object):
                 )
             time.sleep(self.connection_delay)
 
+    def has_privileges(self, required_privileges, level=None):
+        # Copied from mysql/fabric/server.py
+        """Check whether the current user has the required privileges.
+    
+        :param required_privileges: List or tuple of required privileges which
+                                    a user who is connected to the current
+                                    server must have.
+        :param level: Level of the set of privileges.
+        """
+        assert(isinstance(required_privileges, list) or \
+               isinstance(required_privileges, tuple))
+    
+        required_privileges = set(required_privileges)
+        required_level = level or "*.*"
+        all_privileges = "ALL PRIVILEGES"
+        all_level = "*.*"
+    
+        # Log user name with host name, as it is seen by the server.
+        ret = self.exec_stmt("SELECT CURRENT_USER()")
+        current_user = ret[0][0]
+        _LOGGER.debug("Check privileges (%s ON %s) for current user (%s)",
+                      ", ".join(required_privileges), required_level,
+                       current_user)
+    
+        ret = self.exec_stmt("SHOW GRANTS")
+        check = re.compile("GRANT (?P<privileges>.*?) ON (?P<level>.*?) TO")
+        for row in ret:
+            _LOGGER.debug("Row: %s", row[0])
+            res = check.match(row[0])
+            if res:
+                privileges = [ privilege.strip() \
+                      for privilege in res.group("privileges").split(",")
+                ]
+                level = res.group("level").replace('`', "")
+                if (all_privileges in privileges and all_level == level) or \
+                    ((all_privileges in privileges or required_privileges.issubset(set(privileges))) and \
+                    required_level == level):
+                    _LOGGER.debug("match")
+                    return True
+        _LOGGER.debug("no match")
+        return False
+
 def current_persister():
     """Return the persister for the current thread.
     """
@@ -657,3 +711,5 @@ def required_privileges():
     backing store.
     """
     return MySQLPersister.STORE_PRIVILEGES
+
+

@@ -3,6 +3,12 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.10
+-----------------------------
+
+* Not Filed: Raise Exception when fabric user doesn't have enough privileges
+             for backing store
+
 mikasafabric for MySQL 0.0.9
 ----------------------------
 
