@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.0.11
+-----------------------------
+
+* Bug#73206: MySQL Fabric should report a warning when MySQL Event Scheduler is disabled
 
 mikasafabric for MySQL 0.0.10
 -----------------------------

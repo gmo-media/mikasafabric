@@ -472,6 +472,13 @@ class MySQLPersister(object):
                 "with UUID)."
             )
 
+        if not (self.event_scheduler and self.__cnx is not None):
+            _LOGGER.warning(
+                "Backing store's event_scheduler is disabled. "
+                "MySQL Fabric uses event_scheduler for deleting log-table."
+            )
+
+
     def __del__(self):
         """Destructor for MySQLPersister.
         """
@@ -517,6 +524,24 @@ class MySQLPersister(object):
                 self.__cnx, "SELECT @@GLOBAL.SERVER_UUID"
             )
             return _uuid.UUID(str(row[0][0]))
+        except _errors.DatabaseError:
+            pass
+
+        return None
+
+    @property
+    def event_scheduler(self):
+        """Return the event_scheduler's setting.
+        """
+        try:
+            row = exec_mysql_stmt(
+                self.__cnx, "SELECT @@GLOBAL.EVENT_SCHEDULER"
+            )
+
+            if row[0][0] == "ON":
+              return True
+            else:
+              return False
         except _errors.DatabaseError:
             pass
 
