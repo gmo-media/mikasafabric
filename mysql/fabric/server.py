@@ -1706,8 +1706,9 @@ class MySQLServer(_persistence.Persistable):
                 like_pattern = '%%'
             else:
                 like_pattern = '%' + find + '%'
+            idx_faulty = MySQLServer.get_status_idx(MySQLServer.FAULTY)
             rows = persister.exec_stmt(MySQLServer.DUMP_SERVERS,
-                {"params":(like_pattern, "FAULTY")}
+                {"params":(like_pattern, idx_faulty)}
             )
 
             for row in rows:
