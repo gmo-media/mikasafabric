@@ -50,7 +50,8 @@ mikasafabric for MySQL 0.0.5
 mikasafabric for MySQL 0.0.4
 ----------------------------
 
-* Not Filed: Use cnx.disconnect instead of cnx.shutdown
+* Bug#82625: destroy_mysql_connection should use cnx.disconnect
+             instead of cnx.shutdown
 
 mikasafabric for MySQL 0.0.3
 ----------------------------
