@@ -3,6 +3,11 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.13
+-----------------------------
+
+* Not Filed: New parameter server.replication_user and server.replication_password
+
 mikasafabric for MySQL 0.0.12
 -----------------------------
 
@@ -16,8 +21,7 @@ mikasafabric for MySQL 0.0.11
 mikasafabric for MySQL 0.0.10
 -----------------------------
 
-* Not Filed: Raise Exception when fabric user doesn't have enough privileges
-             for backing store
+* Bug#82621: Checking permissions for backing store
 
 mikasafabric for MySQL 0.0.9
 ----------------------------
