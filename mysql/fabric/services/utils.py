@@ -36,7 +36,7 @@ def switch_master(slave, master):
     :param master: Master.
     """
     _replication.stop_slave(slave, wait=True)
-    _replication.switch_master(slave, master, master.user, master.passwd)
+    _replication.switch_master(slave, master, master.repl_user, master.repl_pass)
     slave.read_only = True
     _replication.start_slave(slave, wait=True)
 

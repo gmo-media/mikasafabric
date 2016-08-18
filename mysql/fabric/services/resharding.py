@@ -508,7 +508,7 @@ def _setup_replication(shard_id, source_group_id, destn_group_id, split_value,
     _replication.reset_slave(slave, clean=True)
 
     #Change the master to the shard group master.
-    _replication.switch_master(slave, master, master.user, master.passwd)
+    _replication.switch_master(slave, master, master.repl_user, master.repl_pass)
 
     #Start the slave so that syncing of the data begins
     _replication.start_slave(slave, wait=True)

@@ -16,6 +16,8 @@ backup_password =
 restore_user = fabric
 restore_password =
 unreachable_timeout = 5
+replication_user = fabric_replicator
+replication_password = 
 
 [protocol.xmlrpc]
 address = localhost:32274

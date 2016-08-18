@@ -934,7 +934,8 @@ class MySQLServer(_persistence.Persistable):
 
     def __init__(self, uuid=None, address=None, user=None, passwd=None,
                  mode=DEFAULT_MODE, status=DEFAULT_STATUS,
-                 weight=DEFAULT_WEIGHT, group_id=None, row=None):
+                 weight=DEFAULT_WEIGHT, group_id=None, row=None,
+                 replication_user= None, replication_password= None):
         """Constructor for MySQLServer.
         """
         super(MySQLServer, self).__init__()
@@ -957,6 +958,8 @@ class MySQLServer(_persistence.Persistable):
         self.__cnx_manager = ConnectionManager()
         self.__user = user if user != None else MySQLServer.USER
         self.__passwd = passwd if passwd != None else MySQLServer.PASSWD
+        self.__repl_user = replication_user if replication_user != None else MySQLServer.REPL_USER
+        self.__repl_pass = replication_password if replication_password != None else MySQLServer.REPL_PASS
         self.__mode = mode
         self.__status = status
         self.__weight = weight
@@ -1301,6 +1304,43 @@ class MySQLServer(_persistence.Persistable):
         if self.__passwd != passwd:
             self.disconnect()
             self.__passwd = passwd
+
+    @property
+    def repl_user(self):
+        """Return replication_user's name who is used to connect to master.
+        """
+        # Return the default user, if __repl_user == None,
+        # but not if it is the empty string
+        return self.__repl_user if self.__repl_user != None else MySQLServer.REPL_USER
+
+    @repl_user.setter
+    def repl_user(self, repl_user):
+        """Set user's name who is used to connect to master.
+
+        :param user: User's name.
+        """
+        if self.__repl_user != repl_user:
+            self.disconnect()
+            self.__repl_user = repl_user
+
+    @property
+    def repl_pass(self):
+        """Return repication_user's password who is used to connect to a master. Load
+        the server information from the state store and return the password.
+        """
+        # Return the default repl_pass, if __repl_pass == None,
+        # but not if it is the empty string
+        return self.__repl_pass if self.__repl_pass != None else MySQLServer.REPL_PASS
+
+    @repl_pass.setter
+    def repl_pass(self, repl_pass):
+        """Set user's passord who is used to connect to a master.
+
+        :param passwd: User's password.
+        """
+        if self.__repl_pass != repl_pass:
+            self.disconnect()
+            self.__repl_pass = repl_pass
 
     @property
     def server_user(self):
@@ -1791,3 +1831,15 @@ def configure(config):
         Group._FAILOVER_INTERVAL = int(failover_interval)
     except (_config.NoOptionError, _config.NoSectionError, ValueError):
         pass
+
+    try:
+        MySQLServer.REPL_USER = config.get("servers", "replication_user")
+    except (_config.NoOptionError, _config.NoSectionError, ValueError):
+        ### Use servers.user when replication_user was not given
+        MySQLServer.REPL_USER = MySQLServer.USER
+
+    try:
+        MySQLServer.REPL_PASS = config.get("servers", "replication_password")
+    except (_config.NoOptionError, _config.NoSectionError, ValueError):
+        ### Use servers.password when replication_password was not given
+        MySQLServer.REPL_PASS = MySQLServer.PASSWD

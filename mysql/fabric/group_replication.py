@@ -253,7 +253,7 @@ def setup_group_replication(group_master_id,  group_slave_id):
     #clear references to old masters in the slave
     _replication.reset_slave(slave,  clean=True)
 
-    _replication.switch_master(slave, master, master.user, master.passwd)
+    _replication.switch_master(slave, master, master.repl_user, master.repl_pass)
 
     _replication.start_slave(slave, wait=True)
 
