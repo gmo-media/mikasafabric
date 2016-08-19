@@ -173,11 +173,10 @@ class FailureDetector(object):
                                     server.connect()
                                     slave_issues, why_slave_issues = \
                                         _replication.check_slave_issues(server)
-                                    _LOGGER.critical("slave_issues: %s, why_slave_issues: %s",
-                                                     slave_issues, why_slave_issues)
                                     if slave_issues:
-                                        ### set to SPARE
+                                        ### If slave threads are not running, set status to SPARE
                                         server.status = MySQLServer.SPARE
+                                    server.disconnect()
                                 
                             continue
 
