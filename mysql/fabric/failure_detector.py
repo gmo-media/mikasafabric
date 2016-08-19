@@ -36,6 +36,7 @@ import time
 import logging
 
 from mysql.fabric import (
+    replication as _replication,
     errors as _errors,
     persistence as _persistence,
     config as _config,
@@ -165,6 +166,19 @@ class FailureDetector(object):
                             MySQLServer.is_alive(server, detection_timeout):
                             if server.status == MySQLServer.FAULTY:
                                 connection_manager.kill_connections(server)
+                            else:
+                                ### When server is alive and status != FAULTY
+                                is_master= (group.master == server.uuid)
+                                if not is_master:
+                                    server.connect()
+                                    slave_issues, why_slave_issues = \
+                                        _replication.check_slave_issues(server)
+                                    _LOGGER.critical("slave_issues: %s, why_slave_issues: %s",
+                                                     slave_issues, why_slave_issues)
+                                    if slave_issues:
+                                        ### set to SPARE
+                                        server.status = MySQLServer.SPARE
+                                
                             continue
 
                         unreachable.add(server.uuid)

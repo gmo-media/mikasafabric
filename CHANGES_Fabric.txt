@@ -3,6 +3,11 @@ ChangeLog for Fabric
 ####################
 
 
+mikasafabric for MySQL 0.0.14
+-----------------------------
+
+* Bug#75649: Buit-in failure detector does not check slave's threads
+
 mikasafabric for MySQL 0.0.13
 -----------------------------
 
