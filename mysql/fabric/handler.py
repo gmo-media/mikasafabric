@@ -303,8 +303,7 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
             except AttributeError:
                 info_reported = get_time_from_timestamp(record.created)
 
-            ### TODO: Handle it by config
-            if False:
+            if _LOGGER.getEffectiveLevel() == 10: ### debug.level
                 MySQLHandler.add(
                     info_subject, info_reported, info_reporter,
                     self.format(record), info_category, info_type

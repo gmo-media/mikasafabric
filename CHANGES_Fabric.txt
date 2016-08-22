@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.0.16
+-----------------------------
+* Not Filed: Fix table logging (only logging when logging.level= DEBUG)
+  * Re-fixed mikasafabric for MySQL 0.0.3's implementation
+
 mikasafabric for MySQL 0.0.15
 -----------------------------
 * Not Filed: Set TTL dynamically.
