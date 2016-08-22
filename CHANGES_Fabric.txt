@@ -4,76 +4,62 @@ ChangeLog for Fabric
 
 mikasafabric for MySQL 0.0.15
 -----------------------------
-
 * Not Filed: Set TTL dynamically.
 
 mikasafabric for MySQL 0.0.14
 -----------------------------
-
 * Bug#75649: Buit-in failure detector does not check slave's threads
 
 mikasafabric for MySQL 0.0.13
 -----------------------------
-
 * Not Filed: New parameter server.replication_user and server.replication_password
 
 mikasafabric for MySQL 0.0.12
 -----------------------------
-
 * Bug#81559: Incorrect WHERE clause in dump_servers fanction
 
 mikasafabric for MySQL 0.0.11
 -----------------------------
-
 * Bug#73206: MySQL Fabric should report a warning when MySQL Event Scheduler is disabled
 
 mikasafabric for MySQL 0.0.10
 -----------------------------
-
 * Bug#82621: Checking permissions for backing store
 
 mikasafabric for MySQL 0.0.9
 ----------------------------
-
 * Not Filed: ORDER BY server_address in group.lookup_servers()
 
 mikasafabric for MySQL 0.0.8
 ----------------------------
-
 * Not Filed: Support Multi-Source Replication server
   * mikasafabric for MySQL controls only "nameless" channel
 
 mikasafabric for MySQL 0.0.7
 ----------------------------
-
 * Not Filed: Support offline_mode
   * Change required mysqld version to 5.7.5 and higher(offline_mode support)
   * mysqld will be decided as FAULTY when mysqld is set "offline_mode = ON"
 
 mikasafabric for MySQL 0.0.6
 ----------------------------
-
 * Not Filed: Use asctime instead of created in fabric.log
 
 mikasafabric for MySQL 0.0.5
 ----------------------------
-
 * Not Filed: Display gtid_executed in group.health()
 
 mikasafabric for MySQL 0.0.4
 ----------------------------
-
 * Bug#82625: destroy_mysql_connection should use cnx.disconnect
              instead of cnx.shutdown
 
 mikasafabric for MySQL 0.0.3
 ----------------------------
-
 * NotFiled: Avoid bogus logging into table (Just avoid, incomplete)
 
 mikasafabric for MySQL 0.0.2
 ----------------------------
-
 * Bug#81557: MySQL Fabric uses wrong argument of MAKETIME in prune_log Event
   http://bugs.mysql.com/bug.php?id=81557
 * Bug#81558: prune_log event doesn't use any index
@@ -81,7 +67,6 @@ mikasafabric for MySQL 0.0.2
 
 mikasafabric for MySQL 0.0.1
 ----------------------------
-
 * Forked from MySQL Fabric 1.5.6
 
 Release 1.5.6
