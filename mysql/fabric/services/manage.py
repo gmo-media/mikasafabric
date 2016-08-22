@@ -103,6 +103,30 @@ class Logging(Command):
             return CommandResult(str(error))
         return CommandResult(None)
 
+class Ttl(Command):
+    """Set Time-To-Live.
+    """
+    group_name = "manage"
+    command_name = "set_ttl"
+
+    def execute(self, ttl):
+        """ Set TTL.
+
+        :param ttl: New TTL value.
+        :return: Return True if the logging level is changed. Otherwise,
+        False.
+        """
+        try:
+            old_ttl = _utils.TTL
+            ttl = int(ttl)
+            _utils.TTL = ttl
+        except (_config.NoOptionError, _config.NoSectionError, ValueError) as error:
+            _LOGGER.warning("TTL Change Failed (%s).", str(error))
+            return CommandResult(str(error))
+
+        _LOGGER.info("TTL has changed %d => %d", old_ttl, _utils.TTL)
+        return CommandResult(None)
+
 
 class Ping(Command):
     """Check whether Fabric server is running or not.

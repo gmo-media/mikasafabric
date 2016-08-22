@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.0.15
+-----------------------------
+
+* Not Filed: Set TTL dynamically.
 
 mikasafabric for MySQL 0.0.14
 -----------------------------
