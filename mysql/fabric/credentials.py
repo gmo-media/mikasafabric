@@ -119,18 +119,23 @@ _PERMISSIONS = [
     (3, 'core', 'user', None, 'User administration'),
     (4, 'core', 'role', None, 'Role administration'),
     (5, 'core', 'threat', None, 'Reporting to Fabric'),
+    (6, 'core', 'group', 'lookup_groups', 'List groups'),
+    (7, 'core', 'group', 'lookup_servers', 'List servers in group'),
+    (8, 'core', 'group', 'health', 'List servers and gtids'),
 ]
 
 _ROLES = [
     (1, 'superadmin', 'Role for Administrative users'),
     (2, 'useradmin', 'Role for users dealing with user administration'),
     (3, 'connector', 'Role for MySQL Connectors'),
+    (4, 'observation', 'Role for observation'),
 ]
 
 _ROLE_PERMISSIONS = {
     1: (1,),  # superadmin permissions
     3: (2, 5),  # connector permissions
     2: (3, 4),  # useradmin permissions
+    4: (6, 7, 8), # observation permissions
 }
 
 _USER_ROLES = [

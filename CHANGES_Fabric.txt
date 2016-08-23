@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.1.0
+-----------------------------
+* Not Filed: Add role for observation user.
+* Bump up version because of released in production.
+
 mikasafabric for MySQL 0.0.16
 -----------------------------
 * Not Filed: Fix table logging (only logging when logging.level= DEBUG)
