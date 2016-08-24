@@ -22,6 +22,7 @@ import logging
 from mysql.fabric import (
     persistence as _persistence,
     config as _config,
+    utils as _utils,
 )
 
 from mysql.fabric.utils import (
@@ -303,7 +304,7 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
             except AttributeError:
                 info_reported = get_time_from_timestamp(record.created)
 
-            if False:
+            if _utils.TABLE_LOGGING:
                 MySQLHandler.add(
                     info_subject, info_reported, info_reporter,
                     self.format(record), info_category, info_type

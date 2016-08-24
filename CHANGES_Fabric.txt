@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.1.2
+-----------------------------
+* Not Filed: Add disable_table_logging parameter in fabric.cfg
+  * Re-fixed mikasafabric for MySQL 0.0.3 & 0.1.1
 
 mikasafabric for MySQL 0.1.1
 -----------------------------

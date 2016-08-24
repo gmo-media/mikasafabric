@@ -286,6 +286,7 @@ def _configure_logging(config, daemonize):
     # Set up the logging information.
     logger = logging.getLogger("mysql.fabric")
     handler = None
+    _utils.TABLE_LOGGING = True
 
     # Set up logging handler
     if daemonize:
@@ -310,6 +311,13 @@ def _configure_logging(config, daemonize):
         handler.setLevel(_LOGGING_LEVELS[level.upper()])
     except KeyError:
         handler.setLevel(_LOGGING_LEVELS["INFO"])
+
+    try:
+        disable_table_logging = config.get("storage", "disable_table_logging")
+        if disable_table_logging == "yes":
+            _utils.TABLE_LOGGING = False
+    except:
+        pass
 
 def _configure_connections(config):
     """Configure information on database connection and remote
