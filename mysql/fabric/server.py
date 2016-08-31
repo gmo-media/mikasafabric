@@ -886,7 +886,7 @@ class MySQLServer(_persistence.Persistable):
     PRIMARY = "PRIMARY"
 
     # Define default status
-    DEFAULT_STATUS = SPARE
+    DEFAULT_STATUS = SECONDARY
 
     # Set of possible statuses.
     SERVER_STATUS = [FAULTY, SPARE, SECONDARY, PRIMARY]

@@ -2,10 +2,6 @@
 ChangeLog for Fabric
 ####################
 
-mikasafabric for MySQL 0.1.3
------------------------------
-* Not Filed: Change default server_status to SPARE
-
 mikasafabric for MySQL 0.1.2
 -----------------------------
 * Not Filed: Add disable_table_logging parameter in fabric.cfg
