@@ -31,6 +31,7 @@ from  mysql.fabric import (
     server as _server,
     replication as _replication,
     errors as _errors,
+    failure_detector as _detector,
 )
 
 from mysql.fabric.command import (
@@ -61,6 +62,7 @@ BLOCK_WRITE_SWITCH = _events.Event()
 WAIT_SLAVES_SWITCH = _events.Event()
 # Enable the new master by making slaves point to it.
 CHANGE_TO_CANDIDATE = _events.Event()
+
 class PromoteMaster(ProcedureGroup):
     """Promote a server into master.
 
@@ -216,6 +218,14 @@ def _define_ha_operation(group_id, slave_id, update_only):
             "--update-only is set."
         )
 
+    ### Deactivate FailureDetector during failover/switchover.
+    if _detector.FailureDetector.is_active(group_id):
+
+        ### Deactivate FailureDetector during failover/switchover.
+        _detector.FailureDetector.was_active = True
+        group.status = _server.Group.INACTIVE
+        _detector.FailureDetector.unregister_group(group_id)
+
     if group.master:
         master = _server.MySQLServer.fetch(group.master)
         if master.status != _server.MySQLServer.FAULTY:
@@ -243,6 +253,7 @@ def _define_ha_operation(group_id, slave_id, update_only):
             _events.trigger_within_procedure(CHECK_CANDIDATE_SWITCH, group_id,
                                              slave_id
             )
+
 
 # Block any write access to the master.
 BLOCK_WRITE_DEMOTE = _events.Event()
@@ -547,6 +558,13 @@ def _change_to_candidate(group_id, master_uuid, update_only=False):
                         "Error configuring slave (%s): %s.", server.uuid, error
                     )
 
+
+    ### TODO: Check original FD's state
+    if _detector.FailureDetector.was_active:
+        _detector.FailureDetector.was_active = None
+        group.status = _server.Group.ACTIVE
+        _detector.FailureDetector.register_group(group_id)
+
     # At the end, we notify that a server was promoted.
     # Any function that implements this event should not
     # run any action that updates Fabric. The event was
@@ -724,3 +742,4 @@ def _set_group_master_replication(group, server_id, update_only=False):
             "Error accessing groups related to (%s): %s.", group.group_id,
             error
         )
+

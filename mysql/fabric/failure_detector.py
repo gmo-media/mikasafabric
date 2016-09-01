@@ -117,12 +117,35 @@ class FailureDetector(object):
                 detector.shutdown()
             FailureDetector.GROUPS = {}
 
+    @staticmethod
+    def is_active(group_id):
+        """Return truen when group is active.
+        """
+        if group_id in FailureDetector.GROUPS:
+            return True
+        else:
+            return False
+
+    @property
+    def was_active(self):
+        """An old value of activation.
+        """
+        return self.__was_active
+
+    @was_active.setter
+    def was_active(self, was_active= None):
+        """Turn was_active to true/false.
+        """
+        self.__was_active = was_active
+
+
     def __init__(self, group_id):
         """Constructor for FailureDetector.
         """
         self.__group_id = group_id
         self.__thread = None
         self.__check = False
+        self.__was_active = None
 
     def start(self):
         """Start the failure detector.
