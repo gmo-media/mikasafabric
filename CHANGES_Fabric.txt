@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.1.3
+-----------------------------
+* Not Filed: Turn off FailureDetector durning failover/switchover
+  * https://github.com/gmo-media/mikasafabric/issues/2
+
 mikasafabric for MySQL 0.1.2
 -----------------------------
 * Not Filed: Add disable_table_logging parameter in fabric.cfg
