@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.2.1
+-----------------------------
+* Not Filed: Change DEFUALT_STATUS SPARE.
+
 mikasafabric for MySQL 0.2.0
 -----------------------------
 * Not Filed: Turn off FailureDetector durning failover/switchover
