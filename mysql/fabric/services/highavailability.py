@@ -410,6 +410,20 @@ def _check_candidate_switch(group_id, slave_id):
     slave = _retrieve_server(slave_id, group_id)
     slave.connect()
 
+    old_master= _retrieve_server(group.master, group_id)
+
+    ### Run CREATE USER into old_master if it is available.
+    try:
+        old_master.connect()
+        ### TODO: Add replication_user@old_master
+        _LOGGER.critical("Connected to old_master (%s)", old_master.address)
+        old_master.disconnect()
+    except:
+        ### When old_master is not available, run CREATE USER into candidate-slave.
+        ### TODO: Add replication_user@old_master
+        _LOGGER.critical("Can't connect to old_master (%s), candidate is %s", old_master.address, slave.address)
+        pass
+
     if group.master == slave.uuid:
         raise _errors.ServerError(
             "Candidate slave (%s) is already master." % (slave_id, )
@@ -559,7 +573,7 @@ def _change_to_candidate(group_id, master_uuid, update_only=False):
                     )
 
 
-    ### TODO: Check original FD's state
+    ### Restore FailureDetector's status before starting failover/switchover
     if _detector.FailureDetector.was_active:
         _detector.FailureDetector.was_active = None
         group.status = _server.Group.ACTIVE

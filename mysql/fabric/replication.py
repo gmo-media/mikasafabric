@@ -516,7 +516,9 @@ def check_slave_issues(server):
         'io_not_running': False,
         'sql_not_running': False,
         'io_error': False,
-        'sql_error': False
+        'sql_error': False,
+        'io_errno': False,
+        'sql_errno': False,
     }
 
     if not server.is_connected():
@@ -535,8 +537,10 @@ def check_slave_issues(server):
         status["sql_not_running"] = True
     if ret[0].Last_IO_Errno and ret[0].Last_IO_Errno > 0:
         status["io_error"] = ret[0].Last_IO_Error
+        status["io_errno"] = ret[0].Last_IO_Errno
     if ret[0].Last_SQL_Errno and ret[0].Last_SQL_Errno > 0:
         status["sql_error"] = ret[0].Last_SQL_Error
+        status["sql_errno"] = ret[0].Last_SQL_Errno
 
     error = not all([v is False for v in status.itervalues()])
     return error, status

@@ -198,7 +198,10 @@ class FailureDetector(object):
                                         _replication.check_slave_issues(server)
                                     if slave_issues:
                                         ### If slave threads are not running, set status to SPARE
-                                        server.status = MySQLServer.SPARE
+
+                                        if why_slave_issues['io_errno'] and not why_slave_issues['io_errno'] == 2003:
+                                            ### TODO: handle by errno
+                                            server.status = MySQLServer.SPARE
                                     server.disconnect()
                                 
                             continue

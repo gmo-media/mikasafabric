@@ -1120,7 +1120,6 @@ class MySQLServer(_persistence.Persistable):
                     _LOGGER.debug("match %s on %s", privileges, level)
 
                     if require_grant_option:
-                        _LOGGER.critical("grant_option: %s -- %s", grant_option.match(row[0]), row[0])
                         return True if grant_option.match(row[0]) else False
                     else:
                         return True
