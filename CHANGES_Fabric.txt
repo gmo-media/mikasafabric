@@ -6,6 +6,7 @@ mikasafabric for MySQL 0.2.2
 -----------------------------
 * Not Filed: CREATE USER replication_user when new server is added
   * Need WITH GRANT OPTION by fabric management user.
+  * Currently, replication_user@very_first_master doesn't create automatically.
 
 mikasafabric for MySQL 0.2.1
 -----------------------------
