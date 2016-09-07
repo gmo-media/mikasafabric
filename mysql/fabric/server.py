@@ -843,6 +843,14 @@ class MySQLServer(_persistence.Persistable):
         "status != %s ORDER BY group_id, server_address, server_uuid"
         )
 
+    ### Add replication_user to master.
+    CREATE_REPLICATION_USER = (
+        "CREATE USER /*!50708 IF NOT EXISTS */ %s@%s IDENTIFIED BY %s"
+        )
+    GRANT_REPLICATION_USER = (
+        "GRANT REPLICATION SLAVE ON *.* TO %s@%s"
+        )
+
     #Default weight for the server
     DEFAULT_WEIGHT = 1.0
 
@@ -886,7 +894,7 @@ class MySQLServer(_persistence.Persistable):
     PRIMARY = "PRIMARY"
 
     # Define default status
-    DEFAULT_STATUS = SECONDARY
+    DEFAULT_STATUS = SPARE
 
     # Set of possible statuses.
     SERVER_STATUS = [FAULTY, SPARE, SECONDARY, PRIMARY]
@@ -1085,6 +1093,7 @@ class MySQLServer(_persistence.Persistable):
         required_level = level or "*.*"
         all_privileges = "ALL PRIVILEGES"
         all_level = "*.*"
+        require_grant_option = True
 
         # Log user name with host name, as it is seen by the server.
         ret = self.exec_stmt("SELECT CURRENT_USER()")
@@ -1094,7 +1103,8 @@ class MySQLServer(_persistence.Persistable):
                        current_user)
 
         ret = self.exec_stmt("SHOW GRANTS")
-        check = re.compile("GRANT (?P<privileges>.*?) ON (?P<level>.*?) TO")
+        check = re.compile("GRANT (?P<privileges>.*?) ON (?P<level>.*?) TO ")
+        grant_option = re.compile(".* WITH GRANT OPTION")
         for row in ret:
             _LOGGER.debug("Row: %s", row[0])
             res = check.match(row[0])
@@ -1104,10 +1114,16 @@ class MySQLServer(_persistence.Persistable):
                 ]
                 level = res.group("level").replace('`', "")
                 if (all_privileges in privileges and all_level == level) or \
-                    ((all_privileges in privileges or required_privileges.issubset(set(privileges))) and \
-                    required_level == level):
-                    _LOGGER.debug("match")
-                    return True
+                   ((all_privileges in privileges or \
+                     required_privileges.issubset(set(privileges))) and \
+                     required_level == level):
+                    _LOGGER.debug("match %s on %s", privileges, level)
+
+                    if require_grant_option:
+                        _LOGGER.critical("grant_option: %s -- %s", grant_option.match(row[0]), row[0])
+                        return True if grant_option.match(row[0]) else False
+                    else:
+                        return True
         _LOGGER.debug("no match")
         return False
 
