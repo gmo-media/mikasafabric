@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.2.2
+-----------------------------
+* Not Filed: CREATE USER replication_user when new server is added
+  * Need WITH GRANT OPTION by fabric management user.
+
 mikasafabric for MySQL 0.2.1
 -----------------------------
 * Not Filed: Change DEFUALT_STATUS SPARE.
