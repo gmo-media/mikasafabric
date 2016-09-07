@@ -845,7 +845,7 @@ class MySQLServer(_persistence.Persistable):
 
     ### Add replication_user to master.
     CREATE_REPLICATION_USER = (
-        "CREATE USER IF NOT EXISTS %s@%s IDENTIFIED BY %s"
+        "CREATE USER /*!50708 IF NOT EXISTS */ %s@%s IDENTIFIED BY %s"
         )
     GRANT_REPLICATION_USER = (
         "GRANT REPLICATION SLAVE ON *.* TO %s@%s"
