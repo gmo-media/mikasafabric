@@ -1117,6 +1117,15 @@ def _configure_as_slave(group, server):
             master.exec_stmt(_server.MySQLServer.GRANT_REPLICATION_USER,
                              {"params": (server.repl_user, host,)})
             _services_utils.switch_master(server, master)
+        else:
+            server.connect()
+            host, port = split_host_port(server.address)
+            server.exec_stmt(_server.MySQLServer.CREATE_REPLICATION_USER,
+                             {"params": (server.repl_user, host,
+                                         server.repl_pass,)})
+            server.exec_stmt(_server.MySQLServer.GRANT_REPLICATION_USER,
+                             {"params": (server.repl_user, host,)})
+            
     except _errors.DatabaseError as error:
         msg = "Error trying to configure server ({0}) as slave: {1}.".format(
             server.uuid, error)
