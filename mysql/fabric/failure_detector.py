@@ -199,7 +199,10 @@ class FailureDetector(object):
                                     if slave_issues:
                                         ### If slave threads are not running, set status to SPARE
 
-                                        if why_slave_issues['io_errno'] and not why_slave_issues['io_errno'] == 2003:
+                                        if (why_slave_issues['io_errno'] and \
+                                            not why_slave_issues['io_errno'] == 2003) or \
+                                            (why_slave_issues['sql_errno']):
+
                                             ### TODO: handle by errno
                                             server.status = MySQLServer.SPARE
                                     server.disconnect()
