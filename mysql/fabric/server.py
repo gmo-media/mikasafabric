@@ -1179,7 +1179,7 @@ class MySQLServer(_persistence.Persistable):
         res = False
         try:
             host, port = split_host_port(server.address)
-            cnx = connect_to_mysql(
+            cnx = connect_to_mysql(cnx=server.__cnx,
                 autocommit=True, host=host, port=port,
                 user=server.user, passwd=server.passwd,
                 connection_timeout=connection_timeout

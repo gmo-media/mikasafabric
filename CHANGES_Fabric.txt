@@ -2,6 +2,13 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.4.0
+-----------------------------
+* Not Filed: Using pooling connection for keepalive.
+* Not Filed: Fix sleeping time in FailureDetector.
+  * old: detection_interval/detections
+  * now: detection_interval
+
 mikasafabric for MySQL 0.3.4
 -----------------------------
 * MySQL 5.7.11 doesn't handle CREATE USER IF NOT EXISTS correctly.

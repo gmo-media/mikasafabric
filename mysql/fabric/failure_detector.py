@@ -255,7 +255,7 @@ class FailureDetector(object):
             except Exception as error:
                 _LOGGER.exception(error)
 
-            time.sleep(interval / detections)
+            time.sleep(interval)
 
         _persistence.deinit_thread()
 
