@@ -2,6 +2,14 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.3.3
+-----------------------------
+* Add StoredProcedure dump.servers in backing-store.
+  * Now mysqlrouter can call dump.servers to backing-store directly.
+    * If mysqlrouter call dump.servers to backing-store,
+      mysqlrouter user needs GRANT EXECUTE ON dump.*
+  * backing-store user needs GRANT CREATE, CREATE ROUTINE ON dump.* now.
+
 mikasafabric for MySQL 0.3.2
 -----------------------------
 * Fixed restoring FailureDetector handling when sql_thread is down

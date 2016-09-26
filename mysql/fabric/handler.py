@@ -88,6 +88,19 @@ _INSERT_FABRIC_LOG = (
     "message, category, type) VALUES(%s, %s, %s, %s, %s, %s)"
 )
 
+_CREATE_DUMP_SCHEMA = (
+    "CREATE DATABASE IF NOT EXISTS `dump`"
+)
+
+_CREATE_DUMP_SERVERS = (
+    "CREATE PROCEDURE `dump`.`servers`() "
+    "BEGIN "
+      "SELECT @@server_uuid AS fabric_uuid, 1 AS ttl, NULL AS message; "
+      "SELECT server_uuid, group_id, SUBSTRING_INDEX(server_address, ':', 1) AS host, SUBSTRING_INDEX(server_address, ':', -1) AS port, mode, status, CAST(weight AS DECIMAL(64,1)) AS weight FROM fabric.servers WHERE status <> 0; "
+    "END"
+)
+
+
 
 class MySQLFilter(logging.Filter):
     """Filter records that are not supposed to be written to the logging
@@ -202,6 +215,16 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
             MySQLHandler.idx_category(MySQLHandler.PROCEDURE),
             MySQLHandler.idx_type(MySQLHandler.ABORT),
             MySQLHandler.idx_category(MySQLHandler.PROCEDURE))
+        )
+
+        ### Create `dump` schema for creating sp named `dump`.`servers`
+        persister.exec_stmt(
+            _CREATE_DUMP_SCHEMA
+        )
+
+        ### CREATE PROCEDURE dump.server
+        persister.exec_stmt(
+            _CREATE_DUMP_SERVERS
         )
 
     @staticmethod
