@@ -1111,6 +1111,8 @@ def _configure_as_slave(group, server):
             master = _server.MySQLServer.fetch(group.master)
             master.connect()
             host, port = split_host_port(server.address)
+            master.exec_stmt(_server.MySQLServer.DROP_REPLICATION_USER,
+                             {"params": (server.repl_user, host,)})
             master.exec_stmt(_server.MySQLServer.CREATE_REPLICATION_USER,
                              {"params": (server.repl_user, host,
                                          server.repl_pass,)})
@@ -1120,6 +1122,8 @@ def _configure_as_slave(group, server):
         else:
             server.connect()
             host, port = split_host_port(server.address)
+            server.exec_stmt(_server.MySQLServer.DROP_REPLICATION_USER,
+                             {"params": (server.repl_user, host,)})
             server.exec_stmt(_server.MySQLServer.CREATE_REPLICATION_USER,
                              {"params": (server.repl_user, host,
                                          server.repl_pass,)})

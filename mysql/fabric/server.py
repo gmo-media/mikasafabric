@@ -844,6 +844,9 @@ class MySQLServer(_persistence.Persistable):
         )
 
     ### Add replication_user to master.
+    DROP_REPLICATION_USER = (
+        "DROP USER /*!50708 IF EXISTS */ %s@%s"
+    )
     CREATE_REPLICATION_USER = (
         "CREATE USER /*!50708 IF NOT EXISTS */ %s@%s IDENTIFIED BY %s"
         )
