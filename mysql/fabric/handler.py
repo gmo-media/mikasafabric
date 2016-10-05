@@ -92,6 +92,10 @@ _CREATE_DUMP_SCHEMA = (
     "CREATE DATABASE IF NOT EXISTS `dump`"
 )
 
+_DROP_DUMP_SERVERS = (
+    "DROP PROCEDURE IF EXISTS `dump`.`servers`;"
+)
+
 _CREATE_DUMP_SERVERS = (
     "CREATE PROCEDURE `dump`.`servers`() "
     "BEGIN "
@@ -100,6 +104,26 @@ _CREATE_DUMP_SERVERS = (
     "END"
 )
 
+_DROP_DUMP_SHARDING_INFORMATION = (
+    "DROP PROCEDURE IF EXISTS `dump`.`sharding_information`;"
+)
+
+_CREATE_DUMP_SHARDING_INFORMATION = (
+    "CREATE PROCEDURE `dump`.`sharding_information`() "
+    "BEGIN "
+      "SELECT @@server_uuid AS fabric_uuid, 1 AS ttl, NULL AS message; "
+      "SELECT SUBSTRING_INDEX(t.table_name, '.', 1) AS schema_name, "
+             "SUBSTRING_INDEX(t.table_name, '.', -1) AS table_name, "
+             "t.column_name, "
+             "IF( m.type_name = 'HASH', HEX(r.lower_bound), r.lower_bound) AS lower_bound, "
+             "r.shard_id, m.type_name, s.group_id, m.global_group "
+      "FROM fabric.shard_maps AS m RIGHT JOIN "
+           "fabric.shard_tables AS t USING (shard_mapping_id) LEFT JOIN "
+           "fabric.shard_ranges AS r USING (shard_mapping_id) LEFT JOIN "
+           "fabric.shards AS s USING (shard_id) "
+      "WHERE s.state = 'ENABLED' ORDER BY r.shard_id, t.table_name, t.column_name, r.lower_bound; "
+    "END"
+)
 
 
 class MySQLFilter(logging.Filter):
@@ -224,7 +248,18 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
 
         ### CREATE PROCEDURE dump.server
         persister.exec_stmt(
+            _DROP_DUMP_SERVERS
+        )
+        persister.exec_stmt(
             _CREATE_DUMP_SERVERS
+        )
+
+        ### CREATE PROCEDURE dump.sharding_information
+        persister.exec_stmt(
+            _DROP_DUMP_SHARDING_INFORMATION
+        )
+        persister.exec_stmt(
+            _CREATE_DUMP_SHARDING_INFORMATION
         )
 
     @staticmethod

@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.4.1
+-----------------------------
+* Add StoredProcedure dump.sharding_information in backing-store.
+
 mikasafabric for MySQL 0.4.0
 -----------------------------
 * Not Filed: Using pooling connection for keepalive.
