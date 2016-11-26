@@ -2,7 +2,7 @@
 ChangeLog for Fabric
 ####################
 
-mikasafabric for MySQL 0.4.3
+mikasafabric for MySQL 0.5.0
 -----------------------------
 * Raise error when adding server into group which doesn't elect master yet.
 
