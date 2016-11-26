@@ -255,12 +255,13 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
         )
 
         ### CREATE PROCEDURE dump.sharding_information
-        persister.exec_stmt(
-            _DROP_DUMP_SHARDING_INFORMATION
-        )
-        persister.exec_stmt(
-            _CREATE_DUMP_SHARDING_INFORMATION
-        )
+        ###   Commented out at 0.4.2
+        #persister.exec_stmt(
+        #    _DROP_DUMP_SHARDING_INFORMATION
+        #)
+        #persister.exec_stmt(
+        #    _CREATE_DUMP_SHARDING_INFORMATION
+        #)
 
     @staticmethod
     def add(subject, reported, reporter, info, info_category,

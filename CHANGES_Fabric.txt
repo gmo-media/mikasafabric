@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.4.2
+-----------------------------
+* Commented out dump.servers and dump.sharding_information creation.
+
 mikasafabric for MySQL 0.4.1
 -----------------------------
 * Add StoredProcedure dump.sharding_information in backing-store.
