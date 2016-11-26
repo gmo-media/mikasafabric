@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.4.3
+-----------------------------
+* Raise error when adding server into group which doesn't elect master yet.
+
 mikasafabric for MySQL 0.4.2
 -----------------------------
 * Commented out dump.servers and dump.sharding_information creation.

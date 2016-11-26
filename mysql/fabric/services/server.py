@@ -1107,6 +1107,7 @@ def _configure_as_slave(group, server):
     """Configure the server as a slave.
     """
     try:
+        ### When master has been already elected, throw CREATE USER into master.
         if group.master:
             master = _server.MySQLServer.fetch(group.master)
             master.connect()
@@ -1120,15 +1121,24 @@ def _configure_as_slave(group, server):
                              {"params": (server.repl_user, host,)})
             _services_utils.switch_master(server, master)
         else:
-            server.connect()
-            host, port = split_host_port(server.address)
-            server.exec_stmt(_server.MySQLServer.DROP_REPLICATION_USER,
-                             {"params": (server.repl_user, host,)})
-            server.exec_stmt(_server.MySQLServer.CREATE_REPLICATION_USER,
-                             {"params": (server.repl_user, host,
-                                         server.repl_pass,)})
-            server.exec_stmt(_server.MySQLServer.GRANT_REPLICATION_USER,
-                             {"params": (server.repl_user, host,)})
+            
+            ### When master hasn't been elected yet and adding server is very first server in the group,
+            ### throw CREATE USER into server itself.
+            _LOGGER.critical(group.servers())
+
+            if len(group.servers()) == 1:
+                server.connect()
+                host, port = split_host_port(server.address)
+                server.exec_stmt(_server.MySQLServer.DROP_REPLICATION_USER,
+                                 {"params": (server.repl_user, host,)})
+                server.exec_stmt(_server.MySQLServer.CREATE_REPLICATION_USER,
+                                 {"params": (server.repl_user, host,
+                                             server.repl_pass,)})
+                server.exec_stmt(_server.MySQLServer.GRANT_REPLICATION_USER,
+                                 {"params": (server.repl_user, host,)})
+            else:
+                ### This means group has at least 1 server but master doesn't elect yet.
+                raise _errors.ServerError("Master server doesn't elect yet")
             
     except _errors.DatabaseError as error:
         msg = "Error trying to configure server ({0}) as slave: {1}.".format(
