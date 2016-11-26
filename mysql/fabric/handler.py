@@ -242,17 +242,19 @@ class MySQLHandler(logging.Handler, _persistence.Persistable):
         )
 
         ### Create `dump` schema for creating sp named `dump`.`servers`
-        persister.exec_stmt(
-            _CREATE_DUMP_SCHEMA
-        )
+        ###   Commented out at 0.4.2
+        #persister.exec_stmt(
+        #    _CREATE_DUMP_SCHEMA
+        #)
 
         ### CREATE PROCEDURE dump.server
-        persister.exec_stmt(
-            _DROP_DUMP_SERVERS
-        )
-        persister.exec_stmt(
-            _CREATE_DUMP_SERVERS
-        )
+        ###   Commented out at 0.4.2
+        #persister.exec_stmt(
+        #    _DROP_DUMP_SERVERS
+        #)
+        #persister.exec_stmt(
+        #    _CREATE_DUMP_SERVERS
+        #)
 
         ### CREATE PROCEDURE dump.sharding_information
         ###   Commented out at 0.4.2
