@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.5.1
+-----------------------------
+* Fix failuredetector when SHOW SLAVE STATUS is not fine
+  * This includes from 0.3.2
+
 mikasafabric for MySQL 0.5.0
 -----------------------------
 * Raise error when adding server into group which doesn't elect master yet.
