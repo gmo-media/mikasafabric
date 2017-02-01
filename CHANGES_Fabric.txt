@@ -4,6 +4,10 @@ ChangeLog for Fabric
 
 mikasafabric for MySQL 0.5.1
 -----------------------------
+* Fixed breaking replication during failover(Re-implement of 0.3.0)
+
+mikasafabric for MySQL 0.5.1
+-----------------------------
 * Fix failuredetector when SHOW SLAVE STATUS is not fine
   * This includes from 0.3.2
 
