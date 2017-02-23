@@ -2,14 +2,9 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %endif
 
-%if 0%{?suse_version} && 0%{?suse_version} <= 1200
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%endif
-
-
 Summary:       mikasafabric for MySQL is patched MySQL Fabric by GMO Media, Inc.
 Name:          mikasafabric
-Version:       0.5.2
+Version:       0.5.3
 Release:       1%{?dist}
 License:       GPLv2
 Group:         Development/Libraries
@@ -61,9 +56,6 @@ rm -rf %{buildroot}
 %{_bindir}/mikasafabric
 %{python_sitelib}/mysql
 %if 0%{?rhel} > 5 || 0%{?fedora} > 12
-%{python_sitelib}/mikasafabric-*.egg-info
-%endif
-%if 0%{?suse_version} && 0%{?suse_version} <= 1315
 %{python_sitelib}/mikasafabric-*.egg-info
 %endif
 #%{_mandir}/man1/mysql*.1*

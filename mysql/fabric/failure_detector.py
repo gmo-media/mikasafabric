@@ -187,29 +187,38 @@ class FailureDetector(object):
                     for server in group.servers():
                         if server.status in ignored_status or \
                             MySQLServer.is_alive(server, detection_timeout):
+
                             if server.status == MySQLServer.FAULTY:
                                 connection_manager.kill_connections(server)
                             else:
                                 ### When server is alive and status != FAULTY
                                 is_master= (group.master == server.uuid)
                                 if not is_master:
-                                    server.connect()
-                                    slave_issues, why_slave_issues = \
-                                        _replication.check_slave_issues(server)
-                                    if slave_issues:
+                                    ### Checking master is dead or alive.
+                                    master_server = MySQLServer.fetch(group.master)
 
-                                        if (why_slave_issues['io_error'] and \
-                                          why_slave_issues['io_errno'] == 2003):
+                                    if MySQLServer.is_alive(master_server, detection_timeout):
 
-                                            ### Nothing to do during reconnecting, just logging
-                                            _LOGGER.info(why_slave_issues)
+                                        ### Checking is replication valid or not if master is alive.
+                                        server.connect()
+                                        slave_issues, why_slave_issues = \
+                                            _replication.check_slave_issues(server)
+                                        if slave_issues:
+    
+                                            if (why_slave_issues['io_error'] and \
+                                              why_slave_issues['io_errno'] == 2003):
+    
+                                                ### Nothing to do during reconnecting, just logging
+                                                _LOGGER.info(why_slave_issues)
+    
+                                            else:
+                                                
+                                                ### If slave threads are not running, set status to SPARE
+                                                server.status = MySQLServer.SPARE
+    
+                                        server.disconnect()
 
-                                        else:
-                                            
-                                            ### If slave threads are not running, set status to SPARE
-                                            server.status = MySQLServer.SPARE
-
-                                    server.disconnect()
+                                    ### Skip checking SHOW SLAVE STATUS during master is not alive.
                                 
                             continue
 

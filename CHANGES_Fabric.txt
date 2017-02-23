@@ -2,7 +2,11 @@
 ChangeLog for Fabric
 ####################
 
-mikasafabric for MySQL 0.5.1
+mikasafabric for MySQL 0.5.3
+-----------------------------
+* Fixed race condition between FailureDetectors.
+
+mikasafabric for MySQL 0.5.2
 -----------------------------
 * Fixed breaking replication during failover(Re-implement of 0.3.0)
 
