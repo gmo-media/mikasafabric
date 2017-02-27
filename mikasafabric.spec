@@ -4,7 +4,7 @@
 
 Summary:       mikasafabric for MySQL is patched MySQL Fabric by GMO Media, Inc.
 Name:          mikasafabric
-Version:       0.5.3
+Version:       0.5.4
 Release:       1%{?dist}
 License:       GPLv2
 Group:         Development/Libraries

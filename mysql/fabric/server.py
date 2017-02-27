@@ -38,6 +38,7 @@ import logging
 import math
 import functools
 import re
+import inspect
 
 from datetime import (
     datetime,
@@ -1195,8 +1196,13 @@ class MySQLServer(_persistence.Persistable):
                 res = True
 
             destroy_mysql_connection(cnx)
-        except _errors.DatabaseError:
-            pass
+        except _errors.DatabaseError as err:
+            
+            _LOGGER.warning(err)
+
+            ### Decide "server is alive" if error is 1040: ER_CON_COUNT_ERROR, "Too many connections"
+            if err.message.errno == 1040:
+                res = True
 
         return res
 
