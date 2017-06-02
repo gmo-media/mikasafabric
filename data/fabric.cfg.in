@@ -64,6 +64,7 @@ detections = 3
 detection_interval = 6
 detection_timeout = 1
 prune_time = 3600
+slave_deep_checks = no
 
 [connector]
 TTL = 1

@@ -71,6 +71,8 @@ class FailureDetector(object):
 
     _MIN_DETECTION_TIMEOUT = 1
     _DETECTION_TIMEOUT = _DEFAULT_DETECTION_TIMEOUT = 1
+    
+    _SLAVE_DEEP_CHECKS = False
 
     @staticmethod
     def register_groups():
@@ -176,6 +178,7 @@ class FailureDetector(object):
         detections = FailureDetector._DETECTIONS
         detection_timeout = FailureDetector._DETECTION_TIMEOUT
         connection_manager = ConnectionManager()
+        slave_deep_checks = FailureDetector._SLAVE_DEEP_CHECKS
 
         _persistence.init_thread()
 
@@ -191,35 +194,40 @@ class FailureDetector(object):
                             if server.status == MySQLServer.FAULTY:
                                 connection_manager.kill_connections(server)
                             else:
-                                ### When server is alive and status != FAULTY
-                                is_master= (group.master == server.uuid)
-                                if not is_master:
-                                    ### Checking master is dead or alive.
-                                    master_server = MySQLServer.fetch(group.master)
+                                ### check depends on `slave_deep_checks` parameter
+                                if slave_deep_checks:
 
-                                    if MySQLServer.is_alive(master_server, detection_timeout):
+                                    ### When server is alive and status != FAULTY
+                                    is_master= (group.master == server.uuid)
+                                    if not is_master:
+                                        ### Checking master is dead or alive.
+                                        master_server = MySQLServer.fetch(group.master)
+    
+                                        if MySQLServer.is_alive(master_server, detection_timeout):
+    
+                                            ### Checking is replication valid or not if master is alive.
+                                            server.connect()
+                                            slave_issues, why_slave_issues = \
+                                                _replication.check_slave_issues(server)
+                                            if slave_issues:
+        
+                                                if (why_slave_issues['io_error'] and \
+                                                  why_slave_issues['io_errno'] == 2003):
+        
+                                                    ### Nothing to do during reconnecting, just logging
+                                                    _LOGGER.info(why_slave_issues)
+        
+                                                else:
+                                                    
+                                                    ### If slave threads are not running, set status to SPARE
+                                                    server.status = MySQLServer.SPARE
+        
+                                            server.disconnect()
+    
+                                        ### Skip checking SHOW SLAVE STATUS during master is not alive.
+                                    
+                                ### slave_deep_checks or not
 
-                                        ### Checking is replication valid or not if master is alive.
-                                        server.connect()
-                                        slave_issues, why_slave_issues = \
-                                            _replication.check_slave_issues(server)
-                                        if slave_issues:
-    
-                                            if (why_slave_issues['io_error'] and \
-                                              why_slave_issues['io_errno'] == 2003):
-    
-                                                ### Nothing to do during reconnecting, just logging
-                                                _LOGGER.info(why_slave_issues)
-    
-                                            else:
-                                                
-                                                ### If slave threads are not running, set status to SPARE
-                                                server.status = MySQLServer.SPARE
-    
-                                        server.disconnect()
-
-                                    ### Skip checking SHOW SLAVE STATUS during master is not alive.
-                                
                             continue
 
                         unreachable.add(server.uuid)
@@ -313,3 +321,11 @@ def configure(config):
         FailureDetector._DETECTION_TIMEOUT = int(detection_timeout)
     except (_config.NoOptionError, _config.NoSectionError, ValueError):
         pass
+
+    try:
+        slave_deep_checks = config.get("failure_tracking", "slave_deep_checks")
+        if slave_deep_checks == "yes":
+            FailureDetector._SLAVE_DEEP_CHECKS = True
+    except:
+        pass
+

@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.5.5
+-----------------------------
+* Fix connection leak?
+* Add `slave_deep_checks` option
+
 mikasafabric for MySQL 0.5.4
 -----------------------------
 * Ignore 1040: ER_CON_COUNT_ERROR
