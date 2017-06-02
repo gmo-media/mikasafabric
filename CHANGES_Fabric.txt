@@ -2,10 +2,10 @@
 ChangeLog for Fabric
 ####################
 
-mikasafabric for MySQL 0.5.5
+mikasafabric for MySQL 0.6.0
 -----------------------------
-* Fix connection leak?
 * Add `slave_deep_checks` option
+* Fix connection leak?
 
 mikasafabric for MySQL 0.5.4
 -----------------------------

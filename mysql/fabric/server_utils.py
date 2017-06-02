@@ -153,6 +153,7 @@ def connect_to_mysql(cnx=None, **kwargs):
         else:
             return cnx.connect(**kwargs)
     except mysql.connector.Error as error:
+        cnx = None
         raise _errors.DatabaseError(error)
 
 def disconnect_mysql_connection(cnx):
