@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.2
+-----------------------------
+* Add "deactivate_all" and "activate_all" subcmd
+
 mikasafabric for MySQL 0.6.1
 -----------------------------
 * Fix wrong slave_deep_checks handling.

@@ -359,6 +359,27 @@ class ActivateGroup(ProcedureGroup):
         )
         return self.wait_for_procedures(procedures, synchronous)
 
+ACTIVATE_ALL = _events.Event()
+class ActivateAll(ProcedureGroup):
+    """Activate failure detector for server(s) in a group.
+
+    By default the failure detector is disabled.
+    """
+    group_name = "group"
+    command_name = "activate_all"
+
+    def execute(self, synchronous=True):
+        """Activate all groups.
+
+        :param synchronous: Whether one should wait until the execution
+                            finishes or not.
+        :return: Tuple with job's uuid and status.
+        """
+        procedures = _events.trigger(
+            ACTIVATE_ALL, self.get_lockable_objects()
+        )
+        return self.wait_for_procedures(procedures, synchronous)
+
 DEACTIVATE_GROUP = _events.Event()
 class DeactivateGroup(ProcedureGroup):
     """Deactivate failure detector for server(s) in a group.
@@ -378,6 +399,27 @@ class DeactivateGroup(ProcedureGroup):
         """
         procedures = _events.trigger(
             DEACTIVATE_GROUP, self.get_lockable_objects(), group_id
+        )
+        return self.wait_for_procedures(procedures, synchronous)
+
+DEACTIVATE_ALL = _events.Event()
+class DeactivateAll(ProcedureGroup):
+    """Deactivate failure detector for server(s) in all groups.
+
+    By default the failure detector is disabled.
+    """
+    group_name = "group"
+    command_name = "deactivate_all"
+
+    def execute(self, synchronous=True):
+        """Deactivate all groups.
+
+        :param synchronous: Whether one should wait until the execution
+                            finishes or not.
+        :return: Tuple with job's uuid and status.
+        """
+        procedures = _events.trigger(
+            DEACTIVATE_ALL, self.get_lockable_objects()
         )
         return self.wait_for_procedures(procedures, synchronous)
 
@@ -605,6 +647,13 @@ def _activate_group(group_id):
     _detector.FailureDetector.register_group(group_id)
     _LOGGER.debug("Group (%s) is active.", group)
 
+@_events.on_event(ACTIVATE_ALL)
+def _activate_all():
+    """Activate all groups.
+    """
+    for group_id in _server.Group.groups():
+        _activate_group(group_id)
+
 @_events.on_event(DEACTIVATE_GROUP)
 def _deactivate_group(group_id):
     """Deactivate a group.
@@ -613,6 +662,13 @@ def _deactivate_group(group_id):
     group.status = _server.Group.INACTIVE
     _detector.FailureDetector.unregister_group(group_id)
     _LOGGER.debug("Group (%s) is active.", str(group))
+
+@_events.on_event(DEACTIVATE_ALL)
+def _deactivate_all():
+    """Deactivate all groups.
+    """
+    for group_id in _server.Group.groups():
+        _deactivate_group(group_id)
 
 @_events.on_event(UPDATE_GROUP)
 def _update_group_description(group_id, description):
