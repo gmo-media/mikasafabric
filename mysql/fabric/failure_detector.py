@@ -188,12 +188,16 @@ class FailureDetector(object):
                 group = Group.fetch(self.__group_id)
                 if group is not None:
                     for server in group.servers():
-                        if server.status in ignored_status or \
-                            MySQLServer.is_alive(server, detection_timeout):
+                        if server.status in ignored_status:
 
-                            if server.status == MySQLServer.FAULTY:
-                                connection_manager.kill_connections(server)
-                            else:
+                            ### Server is FAULTY
+                            connection_manager.kill_connections(server)
+                            continue
+                        else:
+                            ### Server is Not FAULTY
+                            if MySQLServer.is_alive(server, detection_timeout):
+
+                                ### Server is alive
                                 ### check depends on `slave_deep_checks` parameter
                                 if slave_deep_checks:
 
@@ -212,61 +216,67 @@ class FailureDetector(object):
                                             if slave_issues:
         
                                                 if (why_slave_issues['io_error'] and \
-                                                  why_slave_issues['io_errno'] == 2003):
+                                                    why_slave_issues['io_errno'] == 2003):
         
                                                     ### Nothing to do during reconnecting, just logging
                                                     _LOGGER.info(why_slave_issues)
         
                                                 else:
-                                                    
+                                                        
                                                     ### If slave threads are not running, set status to SPARE
                                                     server.status = MySQLServer.SPARE
         
+                                            ### Done slave_issues.
                                             server.disconnect()
     
-                                        ### Skip checking SHOW SLAVE STATUS during master is not alive.
+                                        ### Endif MySQLServer.is_alive(master_server, detection_timeout)
+                                    ### Endif not is_master
+                                ### Endif slave_deep_checks
+                                continue
+                            ### Else MySQLServer.is_alive(server, detection_timeout)
+                            else:
+
+                                unreachable.add(server.uuid)
+
+                                _LOGGER.warning(
+                                    "Server (%s) in group (%s) is unreachable.",
+                                    server.uuid, self.__group_id
+                                )
+        
+                                unstable = False
+                                failed_attempts = 0
+                                if server.uuid not in quarantine:
+                                    quarantine[server.uuid] = failed_attempts = 1
+                                else:
+                                    failed_attempts = quarantine[server.uuid] + 1
+                                    quarantine[server.uuid] = failed_attempts
+                                if failed_attempts >= detections:
+                                    unstable = True
+        
+                                can_set_faulty = group.can_set_server_faulty(
+                                    server, get_time()
+                                )
+                                if unstable and can_set_faulty:
+                                    # We have to make this transactional and make the
+                                    # failover (i.e. report failure) robust to failures.
+                                    # Otherwise, a master might be set to faulty and
+                                    # a new one never promoted.
+                                    server.status = MySQLServer.FAULTY
+                                    connection_manager.kill_connections(server)
                                     
-                                ### slave_deep_checks or not
+                                    procedures = trigger("REPORT_FAILURE", None,
+                                        str(server.uuid),
+                                        threading.current_thread().name,
+                                        MySQLServer.FAULTY, False
+                                    )
+                                    executor = _executor.Executor()
+                                    for procedure in procedures:
+                                        executor.wait_for_procedure(procedure)
 
-                            continue
-
-                        unreachable.add(server.uuid)
-
-                        _LOGGER.warning(
-                            "Server (%s) in group (%s) is unreachable.",
-                            server.uuid, self.__group_id
-                        )
-
-                        unstable = False
-                        failed_attempts = 0
-                        if server.uuid not in quarantine:
-                            quarantine[server.uuid] = failed_attempts = 1
-                        else:
-                            failed_attempts = quarantine[server.uuid] + 1
-                            quarantine[server.uuid] = failed_attempts
-                        if failed_attempts >= detections:
-                            unstable = True
-
-                        can_set_faulty = group.can_set_server_faulty(
-                            server, get_time()
-                        )
-                        if unstable and can_set_faulty:
-                            # We have to make this transactional and make the
-                            # failover (i.e. report failure) robust to failures.
-                            # Otherwise, a master might be set to faulty and
-                            # a new one never promoted.
-                            server.status = MySQLServer.FAULTY
-                            connection_manager.kill_connections(server)
-                            
-                            procedures = trigger("REPORT_FAILURE", None,
-                                str(server.uuid),
-                                threading.current_thread().name,
-                                MySQLServer.FAULTY, False
-                            )
-                            executor = _executor.Executor()
-                            for procedure in procedures:
-                                executor.wait_for_procedure(procedure)
-
+                            ### Endif MySQLServer.is_alive(server, detection_timeout)
+                        ### Endif server.status in ignored_status
+                    ### End for server in group.servers()
+                ### Endif group is not None
                 for uuid in quarantine.keys():
                     if uuid not in unreachable:
                         del quarantine[uuid]

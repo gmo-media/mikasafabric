@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.1
+-----------------------------
+* Fix wrong slave_deep_checks handling.
+* Fabric no longer conflicts connector-python
+
 mikasafabric for MySQL 0.6.0
 -----------------------------
 * Add `slave_deep_checks` option

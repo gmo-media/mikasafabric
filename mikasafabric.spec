@@ -4,7 +4,7 @@
 
 Summary:       mikasafabric for MySQL is patched MySQL Fabric by GMO Media, Inc.
 Name:          mikasafabric
-Version:       0.6.0
+Version:       0.6.1
 Release:       1%{?dist}
 License:       GPLv2
 Group:         Development/Libraries
@@ -13,7 +13,6 @@ Source0:       https://github.com/gmo-media/mikasafabric/archive/%{version}.tar.
 BuildArch:     noarch
 BuildRequires: python-devel > 2.6
 Requires:       mysql-connector-python >= 2.0.4
-Conflicts:      mysql-connector-python = 2.1.0, mysql-connector-python = 2.1.1
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 
