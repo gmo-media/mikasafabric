@@ -39,6 +39,7 @@ disable_authentication = no
 ssl_ca =
 ssl_cert =
 ssl_key =
+wait_timeout= 300
 
 [executor]
 executors = 5

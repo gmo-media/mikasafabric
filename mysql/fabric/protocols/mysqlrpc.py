@@ -51,7 +51,7 @@ from mysql.connector.errors import InterfaceError
 
 NEXT_CNX_ID = 0
 NEXT_CNX_ID_LOCK = threading.Lock()
-CLIENT_SESSION_TIMEOUT = 300  # in seconds
+DEFAULT_CLIENT_SESSION_TIMEOUT = 300  # in seconds
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1017,7 +1017,7 @@ class MySQLRPCServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def _purge_inactive_requests(self, reschedule=True):
         """Purge inactive requests
         """
-        threshold = timedelta(0, CLIENT_SESSION_TIMEOUT, 0)
+        threshold = timedelta(0, self.__timeout, 0)
         with self.__active_requests_lock:
             purged = []
             for request in self.__active_requests:
@@ -1120,9 +1120,16 @@ class MySQLRPCServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         else:
             self.__configured = True
 
+        try:
+            value = config.get('protocol.mysql', 'wait_timeout')
+        except:
+            self.__timeout = DEFAULT_CLIENT_SESSION_TIMEOUT
+        else:
+            self.__timeout = int(value)
+
         _LOGGER.info(
-            "MySQL-RPC protocol server started, listening on %s:%d",
-            self.__addr[0], self.__addr[1]
+            "MySQL-RPC protocol server started, listening on %s:%d, wait_timeout %d sec",
+            self.__addr[0], self.__addr[1], self.__timeout
         )
 
     def register_command(self, command):
