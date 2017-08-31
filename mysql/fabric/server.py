@@ -981,6 +981,7 @@ class MySQLServer(_persistence.Persistable):
         self.__version = None
         self.__gtid_enabled = None
         self.__binlog_enabled = None
+        self.__connections = 0
 
     @staticmethod
     @server_logging
@@ -1186,14 +1187,11 @@ class MySQLServer(_persistence.Persistable):
                 connection_timeout=connection_timeout
             )
 
+            ### Confirm offline_mode
             cursor = cnx.cursor()
             cursor.execute("SELECT @@offline_mode")
             row = cursor.fetchone()
-
-            if row[0] == 1:
-                res = False
-            else:
-                res = True
+            res = False if row[0] == 1 else True
 
             destroy_mysql_connection(cnx)
         except _errors.DatabaseError as err:
@@ -1273,6 +1271,31 @@ class MySQLServer(_persistence.Persistable):
         """Return the server id.
         """
         return self.__server_id
+
+    @property
+    def connections(self):
+        """Return current Threads_connected.
+        """
+        try:
+            host, port = split_host_port(self.address)
+            cnx = connect_to_mysql(cnx=self.__cnx,
+                autocommit=True, host=host, port=port,
+                user=self.user, passwd=self.passwd,
+                connection_timeout=1
+            )
+
+            ### get current_connection count
+            cursor = cnx.cursor()
+            cursor.execute("SHOW GLOBAL STATUS LIKE 'Threads_connected'")
+            row = cursor.fetchone()
+            self.__connections = row[1]
+
+            destroy_mysql_connection(cnx)
+        except _errors.DatabaseError as err:
+            
+            _LOGGER.warning(err)
+
+        return self.__connections
 
     @property
     def version(self):

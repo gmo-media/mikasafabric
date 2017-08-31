@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.4
+-----------------------------
+* Change ACTIVE/INACTIVE for failure_detector status in `group lookup_groups`
+* Add column `connections` into `group lookup_servers`
+
 mikasafabric for MySQL 0.6.3
 -----------------------------
 * Add "protocol.mysql.wait_timeout" for purging connections.

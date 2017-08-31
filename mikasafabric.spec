@@ -1,10 +1,6 @@
-%if 0%{?rhel} && 0%{?rhel} <= 5
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%endif
-
 Summary:       mikasafabric for MySQL is patched MySQL Fabric by GMO Media, Inc.
 Name:          mikasafabric
-Version:       0.6.3
+Version:       0.6.4
 Release:       1%{?dist}
 License:       GPLv2
 Group:         Development/Libraries

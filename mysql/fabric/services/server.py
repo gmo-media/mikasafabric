@@ -135,15 +135,15 @@ class GroupLookups(Command):
 
         rset = ResultSet(
             names=('group_id', 'description', 'failure_detector', 'master_uuid'),
-            types=(str, str, bool, str)
+            types=(str, str, str, str)
         )
 
         for group in groups:
             rset.append_row([
-                group.group_id,          # group_id
-                group.description,       # description
-                group.status,            # failure_detector
-                group.master,            # master_uuid
+                group.group_id,                           # group_id
+                group.description,                        # description
+                "ACTIVE" if group.status else "INACTIVE", # failure_detector
+                group.master,                             # master_uuid
             ])
 
         return CommandResult(None, results=rset)
@@ -250,8 +250,8 @@ class ServerLookups(Command):
 
         # Create result set.
         rset = ResultSet(
-            names=('server_uuid', 'address', 'status', 'mode', 'weight'),
-            types=(str, str, str, str, float),
+            names=('server_uuid', 'address', 'status', 'mode', 'weight', 'connections'),
+            types=(str, str, str, str, float, int),
         )
         for server in servers:
             if server.status in status and server.mode in mode:
@@ -260,7 +260,8 @@ class ServerLookups(Command):
                     server.address,
                     server.status,
                     server.mode,
-                    server.weight
+                    server.weight,
+                    server.connections
                 ])
 
         return CommandResult(None, results=rset)
