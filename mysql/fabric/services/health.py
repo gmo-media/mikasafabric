@@ -116,7 +116,7 @@ class CheckHealth(Command):
                 why_slave_issues['sql_not_running'],
                 why_slave_issues['io_error'],
                 why_slave_issues['sql_error'],
-                gtid_executed,
+                ' '.join(gtid_executed.splitlines()),
             ])
 
         return CommandResult(None, results=[info, issues])
