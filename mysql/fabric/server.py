@@ -1278,7 +1278,7 @@ class MySQLServer(_persistence.Persistable):
         """
         try:
             host, port = split_host_port(self.address)
-            cnx = connect_to_mysql(cnx=self.__cnx,
+            cnx = connect_to_mysql(
                 autocommit=True, host=host, port=port,
                 user=self.user, passwd=self.passwd,
                 connection_timeout=1

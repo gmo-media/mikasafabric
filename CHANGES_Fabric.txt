@@ -2,6 +2,11 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.5
+-----------------------------
+* Don't pool(reuse) failuredetector's connection.
+* Remove newline-character from executed_gtid in `group health`
+
 mikasafabric for MySQL 0.6.4
 -----------------------------
 * Change ACTIVE/INACTIVE for failure_detector status in `group lookup_groups`
