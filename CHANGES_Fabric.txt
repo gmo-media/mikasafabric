@@ -2,6 +2,10 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.6
+-----------------------------
+* No changes(just bump up version for building issue)
+
 mikasafabric for MySQL 0.6.5
 -----------------------------
 * Don't pool(reuse) failuredetector's connection.
