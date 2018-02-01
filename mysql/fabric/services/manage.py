@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2013,2015, Oracle and/or its affiliates. All rights reserved.
-# Copyright (c) 2016, GMO Media, Inc. All rights reserved.
+# Copyright (c) 2016, 2018 GMO Media, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ import logging
 import logging.handlers
 import os.path
 import urlparse
+import re
+
 
 from mysql.fabric import (
     backup as _backup,
@@ -126,6 +128,34 @@ class Ttl(Command):
 
         _LOGGER.info("TTL has changed %d => %d", old_ttl, _utils.TTL)
         return CommandResult(None)
+
+class OpenFDs(Command):
+    """Get count of opened file descripters.
+    """
+    group_name = "manage"
+    command_name = "openfds"
+
+    def execute(self):
+        """Get last fd number and max_open_files, return them.
+        """
+
+        try:
+            ### Getting max open files
+            f = open("/proc/%d/limits" % os.getpid())
+            max_open_files = re.search("Max open files\s+(\d+)\s", f.read()).group(1)
+            f.close()
+
+            ### Getting newest fd.
+            max_fd = os.open("/dev/null", 0)
+            os.close(max_fd)
+        except Exception as error:
+            _LOGGER.warning("Can't get current and/or max fd (%s).", str(error))
+            return CommandResult(str(error))
+
+        _LOGGER.info("OpenFDs are %d/%d.", max_fd, max_open_files)
+        rset = ResultSet(names=('current', 'max'),types=(int, int))
+        rset.append_row((max_fd, max_open_files))
+        return CommandResult(None, results=rset)
 
 
 class Ping(Command):
