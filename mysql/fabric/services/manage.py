@@ -142,7 +142,7 @@ class OpenFDs(Command):
         try:
             ### Getting max open files
             f = open("/proc/%d/limits" % os.getpid())
-            max_open_files = re.search("Max open files\s+(\d+)\s", f.read()).group(1)
+            max_open_files = int(re.search("Max open files\s+(\d+)\s", f.read()).group(1))
             f.close()
 
             ### Getting newest fd.

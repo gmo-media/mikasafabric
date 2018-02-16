@@ -2,11 +2,15 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.8
+-----------------------------
+* Fix printing traceback when `mikasafabric manage openfds` is issued.
+  * Problem is logging only.
+
 mikasafabric for MySQL 0.6.7
 -----------------------------
 * Add "mikasafabric manage openfds" for observation mikasafabric's opened fds
   * See https://github.com/gmo-media/mikasafabric/issues/7
-
 
 mikasafabric for MySQL 0.6.6
 -----------------------------
