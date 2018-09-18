@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2013,2015, Oracle and/or its affiliates. All rights reserved.
-# Copyright (c) 2016, GMO Media, Inc. All rights reserved.
+# Copyright (c) 2016, 2018 GMO Media, Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -928,21 +928,7 @@ class MySQLServer(_persistence.Persistable):
         "TRIGGER"             # CREATE TRIGGER
     ]
 
-    #
-    # Minimum set of database privileges for the mysql_fabric database,
-    # which is used to provide shard boundaries.
-    #
-    SERVER_PRIVILEGES_DB = [  # GRANT ... ON mysql_fabric.*
-        "ALTER",              # alter some database objects
-        "CREATE",             # create most database objects
-        "DELETE",             # delete rows
-        "DROP",               # drop most database objects
-        "INSERT",             # insert rows
-        "SELECT",             # select rows
-        "UPDATE",             # update rows
-    ]
-
-    NO_USER_DATABASES = ["performance_schema", "information_schema", "mysql"]
+    NO_USER_DATABASES = ["performance_schema", "information_schema", "mysql", "sys"]
 
     def __init__(self, uuid=None, address=None, user=None, passwd=None,
                  mode=DEFAULT_MODE, status=DEFAULT_STATUS,
@@ -1155,14 +1141,11 @@ class MySQLServer(_persistence.Persistable):
     def check_server_privileges(self):
         """Check whether the current user has the privileges to manage
         a server in the farm.
-        The required privileges are some global privileges (on *.*),
-        and some database privileges on mysql_fabric.*.
+        The required privileges are some global privileges (on *.*).
         :return: None.
         :raises: ServerError on missing privileges.
         """
         self.check_privileges(MySQLServer.SERVER_PRIVILEGES, "*.*")
-        self.check_privileges(MySQLServer.SERVER_PRIVILEGES_DB,
-                              "mysql_fabric.*")
 
     def is_connected(self):
         """Determine whether the proxy object (i.e. the server) is connected
