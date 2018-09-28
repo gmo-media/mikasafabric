@@ -844,6 +844,20 @@ class MySQLServer(_persistence.Persistable):
         "status != %s ORDER BY group_id, server_address, server_uuid"
         )
 
+    #SQL Statement to retrieve the all servers.
+    DUMP_HEALTH = (
+        "SELECT "
+        "group_id, "
+        "SUM(IF(status = 3, 1, 0)) AS primary_count, "
+        "SUM(IF(status = 2, 1, 0)) AS secondary_count, "
+        "SUM(IF(status = 1, 1, 0)) AS spare_count, "
+        "SUM(IF(status = 0, 1, 0)) AS faulty_count, "
+        "COUNT(*) AS server_count "
+        "FROM servers "
+        "GROUP BY group_id"
+        )
+
+
     ### Add replication_user to master.
     DROP_REPLICATION_USER = (
         "DROP USER /*!50708 IF EXISTS */ %s@%s"
@@ -1785,6 +1799,16 @@ class MySQLServer(_persistence.Persistable):
             for row in rows:
                 host, port = split_host_port(row[2])
                 yield (row[0], row[1], host, port, row[3], row[4], row[5])
+
+    @staticmethod
+    def dump_health(version=None, persister=None):
+        """Return the list of healthcheck for all servers.
+        """
+
+        rows = persister.exec_stmt(MySQLServer.DUMP_HEALTH)
+
+        for row in rows:
+            yield (row[0], row[1], row[2], row[3], row[4])
 
     @staticmethod
     def create(persister=None):

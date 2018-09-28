@@ -2,6 +2,15 @@
 ChangeLog for Fabric
 ####################
 
+mikasafabric for MySQL 0.6.10
+-----------------------------
+* Add `dump health` for monitoring purpose.
+
+mikasafabric for MySQL 0.6.9
+-----------------------------
+* Support MySQL 8.0 as managed server.
+  * Not yet as backing store.
+
 mikasafabric for MySQL 0.6.8
 -----------------------------
 * Fix printing traceback when `mikasafabric manage openfds` is issued.

@@ -449,6 +449,28 @@ class DumpServers(Command):
 
         return CommandResult(None, results=rset)
 
+class DumpHealth(Command):
+    """Return information about all servers for monitoring purpose.
+    """
+    group_name = "dump"
+    command_name = "health"
+
+    def execute(self, connector_version=None, patterns=""):
+        """Return information about all servers.
+
+        :param connector_version: The connectors version of the data.
+        :param patterns: group pattern.
+        """
+        rset = ResultSet(
+            names=('group_id', 'primary', 'secondary', 'spare', 'faulty'),
+            types=(str, int, int, int, int)
+        )
+
+        for row in _server.MySQLServer.dump_health(connector_version):
+            rset.append_row(row)
+
+        return CommandResult(None, results=rset)
+
 
 SET_SERVER_STATUS = _events.Event()
 class SetServerStatus(ProcedureGroup):
