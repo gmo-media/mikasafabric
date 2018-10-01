@@ -122,7 +122,8 @@ _PERMISSIONS = [
     (6, 'core', 'group', 'lookup_groups', 'List groups'),
     (7, 'core', 'group', 'lookup_servers', 'List servers in group'),
     (8, 'core', 'group', 'health', 'List servers and gtids'),
-    (9, 'core', 'dump', 'health', 'List servers for monitoring'),
+    (9, 'core', 'manage', 'openfds', 'Check count of file-descriptor'),
+    (10, 'core', 'dump', 'health', 'List servers for monitoring'),
 ]
 
 _ROLES = [
@@ -136,7 +137,7 @@ _ROLE_PERMISSIONS = {
     1: (1,),  # superadmin permissions
     3: (2, 5),  # connector permissions
     2: (3, 4),  # useradmin permissions
-    4: (6, 7, 8, 9), # observation permissions
+    4: (6, 7, 8, 9, 10), # observation permissions
 }
 
 _USER_ROLES = [
