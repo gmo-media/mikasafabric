@@ -1,0 +1,9 @@
+[Unit]
+Description=mikasafabric for MySQL daemon
+Documentation="https://github.com/gmo-media/mikasafabric"
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mikasafabric manage start
+ExecStop=/usr/bin/mikasafabric manage stop

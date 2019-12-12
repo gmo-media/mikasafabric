@@ -1,7 +1,7 @@
 Summary:       mikasafabric for MySQL is patched MySQL Fabric by GMO Media, Inc.
 Name:          mikasafabric
 Version:       0.6.10
-Release:       3%{?dist}
+Release:       4%{?dist}
 License:       GPLv2
 Group:         Development/Libraries
 URL:           https://github.com/gmo-media/mikasafabric
@@ -35,6 +35,8 @@ rm -rf %{buildroot}
 #install -d %{buildroot}%{_mandir}/man1
 #%{__python} setup.py install_man --root %{buildroot}
 ln -s mysqlfabric %{buildroot}/%{_prefix}/bin/mikasafabric
+%{__mkdir_p} %{buildroot}/%{_unitdir}
+%{__cp} mikasafabric.unit %{buildroot}/%{_unitdir}/mikasafabric.service
 
 # Shipped in c/python
 rm -f  %{buildroot}%{python_sitelib}/mysql/__init__.py*
@@ -53,6 +55,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/mikasafabric-*.egg-info
 %endif
 #%{_mandir}/man1/mysql*.1*
+%{_unitdir}/mikasafabric.service
 %defattr(0600, -, -, -)
 %config(noreplace) %{_sysconfdir}/mysql/fabric.cfg
 
