@@ -44,6 +44,9 @@ rm -f  %{buildroot}%{python_sitelib}/mysql/__init__.py*
 %clean
 rm -rf %{buildroot}
 
+%post
+/bin/systemctl daemon-reload
+
 %files
 %defattr(-, root, root, -)
 %doc CHANGES_*.txt LICENSE.txt README_*.txt
